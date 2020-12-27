@@ -3,7 +3,7 @@ import fileinput
 import re
 
 # Read in the file input
-inp = [int(line.strip()) for line in fileinput.input()]
+inp = [line.strip() for line in fileinput.input()]
 # Variables for storing the results
 part_1 = None
 part_2 = None
