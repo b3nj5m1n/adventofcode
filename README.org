@@ -1,0 +1,182 @@
+#+TITLE: Readme
+
+* 2015
+** --- Year Day 1: Not Quite Lisp ---
+** --- Year Day 2: I Was Told There Would Be No Math ---
+** --- Year Day 3: Perfectly Spherical Houses in a Vacuum ---
+** --- Year Day 4: The Ideal Stocking Stuffer ---
+** --- Year Day 5: Doesn&apos;t He Have Intern-Elves For This? ---
+** --- Year Day 6: Probably a Fire Hazard ---
+** --- Year Day 7: Some Assembly Required ---
+** --- Year Day 8: Matchsticks ---
+** --- Year Day 9: All in a Single Night ---
+** --- Year Day 10: Elves Look, Elves Say ---
+** --- Year Day 11: Corporate Policy ---
+** --- Year Day 12: JSAbacusFramework.io ---
+** --- Year Day 13: Knights of the Dinner Table ---
+** --- Year Day 14: Reindeer Olympics ---
+** --- Year Day 15: Science for Hungry People ---
+** --- Year Day 16: Aunt Sue ---
+** --- Year Day 17: No Such Thing as Too Much ---
+** --- Year Day 18: Like a GIF For Your Yard ---
+** --- Year Day 19: Medicine for Rudolph ---
+** --- Year Day 20: Infinite Elves and Infinite Houses ---
+** --- Year Day 21: RPG Simulator 20XX ---
+** --- Year Day 22: Wizard Simulator 20XX ---
+** --- Year Day 23: Opening the Turing Lock ---
+** --- Year Day 24: It Hangs in the Balance ---
+** --- Year Day 25: Let It Snow ---
+* 2016
+** --- Year Day 1: No Time for a Taxicab ---
+** --- Year Day 2: Bathroom Security ---
+** --- Year Day 3: Squares With Three Sides ---
+** --- Year Day 4: Security Through Obscurity ---
+** --- Year Day 5: How About a Nice Game of Chess? ---
+** --- Year Day 6: Signals and Noise ---
+** --- Year Day 7: Internet Protocol Version 7 ---
+** --- Year Day 8: Two-Factor Authentication ---
+** --- Year Day 9: Explosives in Cyberspace ---
+** --- Year Day 10: Balance Bots ---
+** --- Year Day 11: Radioisotope Thermoelectric Generators ---
+** --- Year Day 12: Leonardo&apos;s Monorail ---
+** --- Year Day 13: A Maze of Twisty Little Cubicles ---
+** --- Year Day 14: One-Time Pad ---
+** --- Year Day 15: Timing is Everything ---
+** --- Year Day 16: Dragon Checksum ---
+** --- Year Day 17: Two Steps Forward ---
+** --- Year Day 18: Like a Rogue ---
+** --- Year Day 19: An Elephant Named Joseph ---
+** --- Year Day 20: Firewall Rules ---
+** --- Year Day 21: Scrambled Letters and Hash ---
+** --- Year Day 22: Grid Computing ---
+** --- Year Day 23: Safe Cracking ---
+** --- Year Day 24: Air Duct Spelunking ---
+** --- Year Day 25: Clock Signal ---
+* 2017
+** --- Year Day 1: Inverse Captcha ---
+** --- Year Day 2: Corruption Checksum ---
+** --- Year Day 3: Spiral Memory ---
+** --- Year Day 4: High-Entropy Passphrases ---
+** --- Year Day 5: A Maze of Twisty Trampolines, All Alike ---
+** --- Year Day 6: Memory Reallocation ---
+** --- Year Day 7: Recursive Circus ---
+** --- Year Day 8: I Heard You Like Registers ---
+** --- Year Day 9: Stream Processing ---
+** --- Year Day 10: Knot Hash ---
+** --- Year Day 11: Hex Ed ---
+** --- Year Day 12: Digital Plumber ---
+** --- Year Day 13: Packet Scanners ---
+** --- Year Day 14: Disk Defragmentation ---
+** --- Year Day 15: Dueling Generators ---
+** --- Year Day 16: Permutation Promenade ---
+** --- Year Day 17: Spinlock ---
+** --- Year Day 18: Duet ---
+** --- Year Day 19: A Series of Tubes ---
+** --- Year Day 20: Particle Swarm ---
+** --- Year Day 21: Fractal Art ---
+** --- Year Day 22: Sporifica Virus ---
+** --- Year Day 23: Coprocessor Conflagration ---
+** --- Year Day 24: Electromagnetic Moat ---
+** --- Year Day 25: The Halting Problem ---
+* 2018
+** --- Year Day 1: Chronal Calibration ---
+** --- Year Day 2: Inventory Management System ---
+** --- Year Day 3: No Matter How You Slice It ---
+** --- Year Day 4: Repose Record ---
+** --- Year Day 5: Alchemical Reduction ---
+** --- Year Day 6: Chronal Coordinates ---
+** --- Year Day 7: The Sum of Its Parts ---
+** --- Year Day 8: Memory Maneuver ---
+** --- Year Day 9: Marble Mania ---
+** --- Year Day 10: The Stars Align ---
+** --- Year Day 11: Chronal Charge ---
+** --- Year Day 12: Subterranean Sustainability ---
+** --- Year Day 13: Mine Cart Madness ---
+** --- Year Day 14: Chocolate Charts ---
+** --- Year Day 15: Beverage Bandits ---
+** --- Year Day 16: Chronal Classification ---
+** --- Year Day 17: Reservoir Research ---
+** --- Year Day 18: Settlers of The North Pole ---
+** --- Year Day 19: Go With The Flow ---
+** --- Year Day 20: A Regular Map ---
+** --- Year Day 21: Chronal Conversion ---
+** --- Year Day 22: Mode Maze ---
+** --- Year Day 23: Experimental Emergency Teleportation ---
+** --- Year Day 24: Immune System Simulator 20XX ---
+** --- Year Day 25: Four-Dimensional Adventure ---
+* 2019
+** --- Year Day 1: The Tyranny of the Rocket Equation ---
+** --- Year Day 2: 1202 Program Alarm ---
+** --- Year Day 3: Crossed Wires ---
+** --- Year Day 4: Secure Container ---
+** --- Year Day 5: Sunny with a Chance of Asteroids ---
+** --- Year Day 6: Universal Orbit Map ---
+** --- Year Day 7: Amplification Circuit ---
+** --- Year Day 8: Space Image Format ---
+** --- Year Day 9: Sensor Boost ---
+** --- Year Day 10: Monitoring Station ---
+** --- Year Day 11: Space Police ---
+** --- Year Day 12: The N-Body Problem ---
+** --- Year Day 13: Care Package ---
+** --- Year Day 14: Space Stoichiometry ---
+** --- Year Day 15: Oxygen System ---
+** --- Year Day 16: Flawed Frequency Transmission ---
+** --- Year Day 17: Set and Forget ---
+** --- Year Day 18: Many-Worlds Interpretation ---
+** --- Year Day 19: Tractor Beam ---
+** --- Year Day 20: Donut Maze ---
+** --- Year Day 21: Springdroid Adventure ---
+** --- Year Day 22: Slam Shuffle ---
+** --- Year Day 23: Category Six ---
+** --- Year Day 24: Planet of Discord ---
+** --- Year Day 25: Cryostasis ---
+* 2020
+** --- Year Day 1: Report Repair ---
+** --- Year Day 2: Password Philosophy ---
+** --- Year Day 3: Toboggan Trajectory ---
+** --- Year Day 4: Passport Processing ---
+** --- Year Day 5: Binary Boarding ---
+** --- Year Day 6: Custom Customs ---
+** --- Year Day 7: Handy Haversacks ---
+** --- Year Day 8: Handheld Halting ---
+** --- Year Day 9: Encoding Error ---
+** --- Year Day 10: Adapter Array ---
+** --- Year Day 11: Seating System ---
+** --- Year Day 12: Rain Risk ---
+** --- Year Day 13: Shuttle Search ---
+** --- Year Day 14: Docking Data ---
+** --- Year Day 15: Rambunctious Recitation ---
+** --- Year Day 16: Ticket Translation ---
+** --- Year Day 17: Conway Cubes ---
+** --- Year Day 18: Operation Order ---
+** --- Year Day 19: Monster Messages ---
+** --- Year Day 20: Jurassic Jigsaw ---
+** --- Year Day 21: Allergen Assessment ---
+** --- Year Day 22: Crab Combat ---
+** --- Year Day 23: Crab Cups ---
+** --- Year Day 24: Lobby Layout ---
+** --- Year Day 25: Combo Breaker ---
+
+
+
+
+
+* Footnote
+I used this command to download all the html files:
+#+begin_src shell :exports code :eval never
+for year in $(seq 2015 2020); do for day in $(seq 1 25); do mkdir -p "./$year/"; curl "$base_url$year/day/$day" > "./$year/$day.html"; done; done
+#+end_src
+And this one to extract the titles for all the days:
+#+begin_src shell :exports code :eval never
+for year in $(seq 2015 2020); do for day in $(seq 1 25); do rg "day-desc" "./$year/$day.html" | sd '.*<h2>(.+?)</h2>.*' '$1' | sd -- '--- (.+?) ---' '--- Year '$year', $1 ---'; done; done
+#+end_src
+To also do the scores, first manually copy the [[https://adventofcode.com/2020/leaderboard/self][personal leaderboard]] (Select everything and control c), paste all of that into a file called =scores.csv= in the directory of that year.
+
+Write to a file:
+#+begin_src shell
+file="./index.org"; echo "" > "$file"; for year in $(seq 2015 2020); do echo "* $year" >> "$file"; for day in $(seq 1 25); do echo "$year - $day"; title=$(rg "day-desc" "./$year/$day.html" | sd '.*<h2>(.+?)</h2>.*' '$1' | sd -- '--- (.+?) ---' '--- Year $1 ---'); echo "** $title" >> "$file"; sed "$(((25-day)+3))q;d" "./$year/scores.csv" | sd ' +' ',' | awk -F ',' '{printf "| | Time | Rank | Score |\n|--+--|--+--|--+--|\n| Part 1 | %s | %s | %s |\n| Part 2 | %s | %s | %s |\n",$3,$4,$5,$6,$7,$8}' >> "$file"; done; done;
+#+end_src
+Echo to stout:
+#+begin_src shell
+for year in $(seq 2015 2020); do echo "* $year"; for day in $(seq 1 25); do title=$(rg "day-desc" "./$year/$day.html" | sd '.*<h2>(.+?)</h2>.*' '$1' | sd -- '--- (.+?) ---' '--- Year $1 ---'); stats=$(sed "$(((25-day)+3))q;d" "./$year/scores.csv" | sd ' +' ',' | awk -F ',' '{printf "| | Time | Rank | Score |\n|--+--|--+--|--+--|\n| Part 1 | %s | %s | %s |\n| Part 2 | %s | %s | %s |\n",$3,$4,$5,$6,$7,$8}'); echo "** $title\n$stats"; done; done;
+#+end_src
