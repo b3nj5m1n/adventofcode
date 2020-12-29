@@ -1,0 +1,152 @@
+#+TITLE: Advent of Code
+
+* --- Year Day 1: Report Repair ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 13:41:15 | 50524 |     0 |
+| Part 2 | 13:45:58 | 46332 |     0 |
+* --- Year Day 2: Password Philosophy ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 14:41:58 | 56790 |     0 |
+| Part 2 | 14:51:19 | 54315 |     0 |
+* --- Year Day 3: Toboggan Trajectory ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 07:10:03 | 32748 |     0 |
+| Part 2 | 07:19:19 | 30632 |     0 |
+* --- Year Day 4: Passport Processing ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 10:03:10 | 39934 |     0 |
+| Part 2 | 12:01:12 | 34959 |     0 |
+* --- Year Day 5: Binary Boarding ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 05:35:11 | 22088 |     0 |
+| Part 2 | 06:16:10 | 22466 |     0 |
+* --- Year Day 6: Custom Customs ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 06:06:39 | 27060 |     0 |
+| Part 2 | 06:14:08 | 24606 |     0 |
+* --- Year Day 7: Handy Haversacks ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 10:15:51 | 26073 |     0 |
+| Part 2 | 11:22:37 | 23137 |     0 |
+* --- Year Day 8: Handheld Halting ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 08:44:24 | 29837 |     0 |
+| Part 2 | 10:34:04 | 28016 |     0 |
+* --- Year Day 9: Encoding Error ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 07:33:35 | 26610 |     0 |
+| Part 2 | 07:44:43 | 24667 |     0 |
+* --- Year Day 10: Adapter Array ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 11:20:08 | 32259 |     0 |
+| Part 2 | 13:41:58 | 23130 |     0 |
+* --- Year Day 11: Seating System ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 08:02:18 | 19146 |     0 |
+| Part 2 | 10:20:17 | 17284 |     0 |
+* --- Year Day 12: Rain Risk ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 06:34:29 | 16572 |     0 |
+| Part 2 | 09:29:49 | 17344 |     0 |
+* --- Year Day 13: Shuttle Search ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 07:38:05 | 20315 |     0 |
+| Part 2 | 09:38:50 | 11474 |     0 |
+* --- Year Day 14: Docking Data ---
+** Placement
+|        |     Time | Rank | Score |
+|--------+----------+------+-------|
+| Part 1 | 01:36:38 | 6501 |     0 |
+| Part 2 | 02:06:03 | 4848 |     0 |
+* --- Year Day 15: Rambunctious Recitation ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 05:39:36 | 14414 |     0 |
+| Part 2 | 06:29:59 | 13326 |     0 |
+* --- Year Day 16: Ticket Translation ---
+** Placement
+|        |     Time | Rank | Score |
+|--------+----------+------+-------|
+| Part 1 | 00:23:13 | 2534 |     0 |
+| Part 2 | 01:32:47 | 3341 |     0 |
+* --- Year Day 17: Conway Cubes ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 09:54:50 | 11874 |     0 |
+| Part 2 | 10:35:33 | 11434 |     0 |
+* --- Year Day 18: Operation Order ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 06:38:41 | 10370 |     0 |
+| Part 2 | 08:53:27 | 10022 |     0 |
+* --- Year Day 19: Monster Messages ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 14:16:58 | 11390 |     0 |
+| Part 2 | 15:48:35 |  8876 |     0 |
+* --- Year Day 20: Jurassic Jigsaw ---
+** Placement
+|        | Time     |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 08:27:57 |  6767 |     0 |
+| Part 2 | >24h     | 11227 |     0 |
+* --- Year Day 21: Allergen Assessment ---
+** Placement
+|        | Time     |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 08:32:55 |  7725 |     0 |
+| Part 2 | >24h     | 12787 |     0 |
+* --- Year Day 22: Crab Combat ---
+** Placement
+|        |     Time |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 08:52:41 | 11331 |     0 |
+| Part 2 | 11:19:13 |  9186 |     0 |
+* --- Year Day 23: Crab Cups ---
+** Placement
+|        | Time  |  Rank | Score |
+| --+--  | --+-- | --+-- |       |
+| Part 1 | >24h  | 13549 |     0 |
+| Part 2 | >24h  | 11382 |     0 |
+* --- Year Day 24: Lobby Layout ---
+** Placement
+|        | Time     |  Rank | Score |
+|--------+----------+-------+-------|
+| Part 1 | 18:50:10 | 11448 |     0 |
+| Part 2 | >24h     | 11594 |     0 |
+* --- Year Day 25: Combo Breaker ---
+** Placement
+|        |     Time | Rank | Score |
+|--------+----------+------+-------|
+| Part 1 | 08:28:55 | 8487 |     0 |
+| Part 2 | 15:47:19 | 7953 |     0 |
