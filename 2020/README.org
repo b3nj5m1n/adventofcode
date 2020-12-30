@@ -6,147 +6,247 @@
 |--------+----------+-------+-------|
 | Part 1 | 13:41:15 | 50524 |     0 |
 | Part 2 | 13:45:58 | 46332 |     0 |
+** Benchmark
+| Command               | Mean [s]      | Min [s] | Max [s] | Relative |
+|-----------------------+---------------+---------+---------+----------|
+| =./day1/1.py day1/1.in= | 2.084 ± 0.121 |   1.937 |   2.255 |     1.00 |
 * --- Year Day 2: Password Philosophy ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 14:41:58 | 56790 |     0 |
 | Part 2 | 14:51:19 | 54315 |     0 |
+** Benchmark
+| Command               | Mean [ms]   | Min [ms] | Max [ms] | Relative |
+|-----------------------+-------------+----------+----------+----------|
+| =./day2/2.py day2/2.in= | 57.4 ± 16.1 |     48.3 |    117.2 |     1.00 |
 * --- Year Day 3: Toboggan Trajectory ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 07:10:03 | 32748 |     0 |
 | Part 2 | 07:19:19 | 30632 |     0 |
+** Benchmark
+| Command               | Mean [ms]  | Min [ms] | Max [ms] | Relative |
+|-----------------------+------------+----------+----------+----------|
+| =./day3/3.py day3/3.in= | 55.5 ± 7.1 |     49.6 |     88.6 |     1.00 |
 * --- Year Day 4: Passport Processing ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 10:03:10 | 39934 |     0 |
 | Part 2 | 12:01:12 | 34959 |     0 |
+** Benchmark
+| Command               | Mean [ms]  | Min [ms] | Max [ms] | Relative |
+|-----------------------+------------+----------+----------+----------|
+| =./day4/4.py day4/4.in= | 65.7 ± 7.5 |     59.5 |     85.5 |     1.00 |
 * --- Year Day 5: Binary Boarding ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 05:35:11 | 22088 |     0 |
 | Part 2 | 06:16:10 | 22466 |     0 |
+** Benchmark
+| Command               | Mean [ms]  | Min [ms] | Max [ms] | Relative |
+|-----------------------+------------+----------+----------+----------|
+| =./day5/5.py day5/5.in= | 67.5 ± 1.8 |     66.1 |     72.2 |     1.00 |
 * --- Year Day 6: Custom Customs ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 06:06:39 | 27060 |     0 |
 | Part 2 | 06:14:08 | 24606 |     0 |
+** Benchmark
+| Command               | Mean [ms]   | Min [ms] | Max [ms] | Relative |
+|-----------------------+-------------+----------+----------+----------|
+| =./day6/6.py day6/6.in= | 85.6 ± 22.5 |     63.2 |    161.0 |     1.00 |
 * --- Year Day 7: Handy Haversacks ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 10:15:51 | 26073 |     0 |
 | Part 2 | 11:22:37 | 23137 |     0 |
+** Benchmark
+| Command               | Mean [ms]   | Min [ms] | Max [ms] | Relative |
+|-----------------------+-------------+----------+----------+----------|
+| =./day7/7.py day7/7.in= | 110.6 ± 3.6 |    107.7 |    119.6 |     1.00 |
 * --- Year Day 8: Handheld Halting ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 08:44:24 | 29837 |     0 |
 | Part 2 | 10:34:04 | 28016 |     0 |
+** Benchmark
+| Command               | Mean [s]      | Min [s] | Max [s] | Relative |
+|-----------------------+---------------+---------+---------+----------|
+| =./day8/8.py day8/8.in= | 1.181 ± 0.091 |   1.107 |   1.376 |     1.00 |
 * --- Year Day 9: Encoding Error ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 07:33:35 | 26610 |     0 |
 | Part 2 | 07:44:43 | 24667 |     0 |
+** Benchmark
+| Command               | Mean [ms]   | Min [ms] | Max [ms] | Relative |
+|-----------------------+-------------+----------+----------+----------|
+| =./day9/9.py day9/9.in= | 112.0 ± 8.1 |    103.4 |    137.0 |     1.00 |
 * --- Year Day 10: Adapter Array ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 11:20:08 | 32259 |     0 |
 | Part 2 | 13:41:58 | 23130 |     0 |
+** Benchmark
+| Command                   | Mean [ms]  | Min [ms] | Max [ms] | Relative |
+|---------------------------+------------+----------+----------+----------|
+| =./day10/10.py day10/10.in= | 54.4 ± 3.9 |     50.1 |     75.9 |     1.00 |
 * --- Year Day 11: Seating System ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 08:02:18 | 19146 |     0 |
 | Part 2 | 10:20:17 | 17284 |     0 |
+** Benchmark
+| Command                   | Mean [s]       | Min [s] | Max [s] | Relative |
+|---------------------------+----------------+---------+---------+----------|
+| =./day11/11.py day11/11.in= | 18.802 ± 2.322 |  16.709 |  23.039 |     1.00 |
 * --- Year Day 12: Rain Risk ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 06:34:29 | 16572 |     0 |
 | Part 2 | 09:29:49 | 17344 |     0 |
+** Benchmark
+| Command                   | Mean [ms]  | Min [ms] | Max [ms] | Relative |
+|---------------------------+------------+----------+----------+----------|
+| =./day12/12.py day12/12.in= | 66.0 ± 5.0 |     61.6 |     83.4 |     1.00 |
 * --- Year Day 13: Shuttle Search ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 07:38:05 | 20315 |     0 |
 | Part 2 | 09:38:50 | 11474 |     0 |
+** Benchmark
+| Command                   | Mean [ms]  | Min [ms] | Max [ms] | Relative |
+|---------------------------+------------+----------+----------+----------|
+| =./day13/13.py day13/13.in= | 58.1 ± 4.3 |     53.3 |     83.0 |     1.00 |
 * --- Year Day 14: Docking Data ---
 ** Placement
 |        |     Time | Rank | Score |
 |--------+----------+------+-------|
 | Part 1 | 01:36:38 | 6501 |     0 |
 | Part 2 | 02:06:03 | 4848 |     0 |
+** Benchmark
+| Command                   | Mean [s]      | Min [s] | Max [s] | Relative |
+|---------------------------+---------------+---------+---------+----------|
+| =./day14/14.py day14/14.in= | 2.092 ± 0.124 |   2.020 |   2.443 |     1.00 |
 * --- Year Day 15: Rambunctious Recitation ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 05:39:36 | 14414 |     0 |
 | Part 2 | 06:29:59 | 13326 |     0 |
+** Benchmark
+| Command                   | Mean [s]       | Min [s] | Max [s] | Relative |
+|---------------------------+----------------+---------+---------+----------|
+| =./day15/15.py day15/15.in= | 65.756 ± 5.479 |  61.995 |  80.716 |     1.00 |
 * --- Year Day 16: Ticket Translation ---
 ** Placement
 |        |     Time | Rank | Score |
 |--------+----------+------+-------|
 | Part 1 | 00:23:13 | 2534 |     0 |
 | Part 2 | 01:32:47 | 3341 |     0 |
+** Benchmark
+| Command                   | Mean [ms]    | Min [ms] | Max [ms] | Relative |
+|---------------------------+--------------+----------+----------+----------|
+| =./day16/16.py day16/16.in= | 680.4 ± 57.9 |    636.0 |    797.4 |     1.00 |
 * --- Year Day 17: Conway Cubes ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 09:54:50 | 11874 |     0 |
 | Part 2 | 10:35:33 | 11434 |     0 |
+** Benchmark
+| Command                   | Mean [s]        | Min [s] | Max [s] | Relative |
+|---------------------------+-----------------+---------+---------+----------|
+| =./day17/17.py day17/17.in= | 107.853 ± 9.218 |  96.616 | 126.038 |     1.00 |
 * --- Year Day 18: Operation Order ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 06:38:41 | 10370 |     0 |
 | Part 2 | 08:53:27 | 10022 |     0 |
+** Benchmark
+| Command                   | Mean [ms]   | Min [ms] | Max [ms] | Relative |
+|---------------------------+-------------+----------+----------+----------|
+| =./day18/18.py day18/18.in= | 106.3 ± 7.5 |     99.6 |    128.3 |     1.00 |
 * --- Year Day 19: Monster Messages ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 14:16:58 | 11390 |     0 |
 | Part 2 | 15:48:35 |  8876 |     0 |
+** Benchmark
+| Command                   | Mean [ms]   | Min [ms] | Max [ms] | Relative |
+|---------------------------+-------------+----------+----------+----------|
+| =./day19/19.py day19/19.in= | 234.3 ± 5.9 |    227.9 |    242.6 |     1.00 |
 * --- Year Day 20: Jurassic Jigsaw ---
 ** Placement
 |        | Time     |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 08:27:57 |  6767 |     0 |
 | Part 2 | >24h     | 11227 |     0 |
+** Benchmark
+| Command                   | Mean [s]      | Min [s] | Max [s] | Relative |
+|---------------------------+---------------+---------+---------+----------|
+| =./day20/20.py day20/20.in= | 2.018 ± 0.123 |   1.916 |   2.304 |     1.00 |
 * --- Year Day 21: Allergen Assessment ---
 ** Placement
 |        | Time     |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 08:32:55 |  7725 |     0 |
 | Part 2 | >24h     | 12787 |     0 |
+** Benchmark
+| Command                   | Mean [ms]  | Min [ms] | Max [ms] | Relative |
+|---------------------------+------------+----------+----------+----------|
+| =./day21/21.py day21/21.in= | 71.0 ± 2.2 |     68.7 |     81.2 |     1.00 |
 * --- Year Day 22: Crab Combat ---
 ** Placement
 |        |     Time |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 08:52:41 | 11331 |     0 |
 | Part 2 | 11:19:13 |  9186 |     0 |
+** Benchmark
+| Command                   | Mean [s]      | Min [s] | Max [s] | Relative |
+|---------------------------+---------------+---------+---------+----------|
+| =./day22/22.rb day22/22.in= | 2.244 ± 0.122 |   2.094 |   2.439 |     1.00 |
 * --- Year Day 23: Crab Cups ---
 ** Placement
 |        | Time  |  Rank | Score |
 | --+--  | --+-- | --+-- |       |
 | Part 1 | >24h  | 13549 |     0 |
 | Part 2 | >24h  | 11382 |     0 |
+** Benchmark
+| Command                   | Mean [s]       | Min [s] | Max [s] | Relative |
+|---------------------------+----------------+---------+---------+----------|
+| =./day23/23.rb day23/23.in= | 81.600 ± 8.532 |  72.839 | 103.119 |     1.00 |
 * --- Year Day 24: Lobby Layout ---
 ** Placement
 |        | Time     |  Rank | Score |
 |--------+----------+-------+-------|
 | Part 1 | 18:50:10 | 11448 |     0 |
 | Part 2 | >24h     | 11594 |     0 |
+** Benchmark
+| Command                   | Mean [s]       | Min [s] | Max [s] | Relative |
+|---------------------------+----------------+---------+---------+----------|
+| =./day24/24.rb day24/24.in= | 12.477 ± 1.778 |  10.610 |  15.425 |     1.00 |
 * --- Year Day 25: Combo Breaker ---
 ** Placement
 |        |     Time | Rank | Score |
 |--------+----------+------+-------|
 | Part 1 | 08:28:55 | 8487 |     0 |
 | Part 2 | 15:47:19 | 7953 |     0 |
+** Benchmark
+| Command                   | Mean [s]      | Min [s] | Max [s] | Relative |
+|---------------------------+---------------+---------+---------+----------|
+| =./day25/25.rb day25/25.in= | 5.609 ± 0.595 |   4.859 |   6.239 |     1.00 |
