@@ -15,6 +15,7 @@ fn main() {
     let mut file_handle = std::fs::File::open(&args[1]).unwrap();
     let mut inp = String::new();
     file_handle.read_to_string(&mut inp).unwrap();
+    let inp: Vec<&str> = inp.split("\n").filter(|line| !line.is_empty()).collect();
 
     // Struct storing the resulting values
     let mut result: Result = Result {
@@ -35,6 +36,8 @@ struct Result {
 }
 
 // Function to solve both parts
-fn solve(inp: String, res: &mut Result) {
-    for line in inp.split("\n") { println!("{}", line) }
+fn solve(inp: Vec<&str>, res: &mut Result) {
+    for line in inp {
+        println!("{}", line)
+    }
 }
