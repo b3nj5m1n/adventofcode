@@ -32,7 +32,7 @@ fn main() {
 // Struct for solution values
 struct Result {
     part_1: u64,
-    part_2: i32,
+    part_2: u64,
 }
 
 // Function to solve both parts
@@ -46,15 +46,20 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .map(|l| Board::new(l.to_vec().into_iter().map(|s| String::from(s)).collect()))
         .filter(|board| board.fields.len() > 0)
         .collect();
+    let mut part_2 = 0;
     for draw in draws {
         for board in &mut boards {
             board.draw(draw);
-            if board.won() {
-                res.part_1 = board.score() * u64::from(draw);
-                return;
+            if board.won() && board.won == false {
+                board.won = true;
+                if res.part_1 == 0 {
+                    res.part_1 = board.score() * u64::from(draw);
+                }
+                part_2 = board.score() * u64::from(draw);
             }
         }
     }
+    res.part_2 = part_2;
 }
 
 #[derive(Debug, Clone)]
