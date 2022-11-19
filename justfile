@@ -86,6 +86,8 @@ new language day="" year="":
     # If no year was supplied, assume we want to create a new solution for the current year
     if [ -z "{{year}}" ]; then
         year="{{current_year}}"
+    else
+        year="{{year}}"
     fi
     # Test if we're in the directory for a year, if so, assume we want to create the solution for this year instead
     d="{{trim_start_match(invocation_directory(), justfile_directory())}}"
