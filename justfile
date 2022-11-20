@@ -97,4 +97,29 @@ new language day="" year="":
     just new_dir $day $year
     just new_{{language}} $day $year
 
+# Get input
+get year="" day="":
+    #!/usr/bin/env sh
+    if [ -f "{{justfile_directory()}}/session" ]; then
+        session=$(cat "{{justfile_directory()}}/session")
+    else
+        echo "Session file not found, open network tab of browser dev tools, refresh page, click input, click cookies, copy value for session and paste in {{justfile_directory()}}/session"
+        exit 1
+    fi
+    d="{{trim_start_match(invocation_directory(), justfile_directory())}}"
+    # Test if we're in the directory for a day
+    if [ -n "$d" ] && [ $(expr $d : '^/[[:digit:]]\+/day[[:digit:]]\+') -gt 0 ]; then
+        day="{{file_name(invocation_directory())}}"
+        day="${day#day}" # Removes the "day" prefix from the variable named $day
+        year="{{file_name(parent_directory(invocation_directory()))}}"
+    # We can't figure out year and day ourselves
+    elif [ -n "{{year}}" ] && [ -n "{{day}}" ]; then
+        day="{{day}}"
+        year="{{year}}"
+    else
+        echo "You must run this command from within a day's directory or provide the year and day as arguments."
+        exit 1
+    fi
+    dir="{{justfile_directory()}}/$year/day$day"
+    curl "https://adventofcode.com/$year/day/$day/input" --cookie "session=$session" -o "$dir/input"
 
