@@ -39,37 +39,46 @@ struct Result {
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
     let lines: Vec<Line> = inp.into_iter().map(|line| Line::new(line)).collect();
-    let mut points = HashMap::new();
+    let mut points_1 = HashMap::new();
+    let mut points_2 = HashMap::new();
     for line in lines {
         for point in line.get_points_hori_verti() {
             let key = (point.x, point.y);
-            match points.get(&key) {
+            match points_1.get(&key) {
                 Some(count) => {
-                    points.insert(key, count + 1);
+                    points_1.insert(key, count + 1);
                 }
                 None => {
-                    points.insert(key, 1);
+                    points_1.insert(key, 1);
+                }
+            }
+        }
+        for point in line.get_points() {
+            let key = (point.x, point.y);
+            match points_2.get(&key) {
+                Some(count) => {
+                    points_2.insert(key, count + 1);
+                }
+                None => {
+                    points_2.insert(key, 1);
                 }
             }
         }
     }
-    /* for y in 0..10 {
-        let mut line = String::from("");
-        for x in 0..10 {
-            match points.get(&(x, y)) {
-                Some(count) => line.push_str(&count.to_string()),
-                None => line.push_str("."),
-            }
-        }
-        println!("{}", line);
-    } */
     let mut part_1 = 0;
-    for (coords, count) in points.iter() {
+    for (coords, count) in points_1.iter() {
         if count > &1 {
             part_1 += 1;
         }
     }
+    let mut part_2 = 0;
+    for (coords, count) in points_2.iter() {
+        if count > &1 {
+            part_2 += 1;
+        }
+    }
     res.part_1 = part_1;
+    res.part_2 = part_2;
 }
 
 #[derive(Debug)]
@@ -128,11 +137,14 @@ impl Line {
             let mut y = current.y;
             if x > self.end.x {
                 x = current.x - 1;
-            } else if x < self.end.x {
+            }
+            if x < self.end.x {
                 x = current.x + 1;
-            } else if y > self.end.y {
+            }
+            if y > self.end.y {
                 y = current.y - 1;
-            } else if y < self.end.y {
+            }
+            if y < self.end.y {
                 y = current.y + 1;
             }
             current = Point { x, y };
