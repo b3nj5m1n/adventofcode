@@ -1,6 +1,11 @@
 current_year := `date +%Y`
 current_day := `date +%d`
 
+# Run C solution of given year and day for the supplied input filename
+run_c year day input_filename:
+    clang "{{justfile_directory()}}/{{year}}/day{{day}}/solve.c" -o "{{justfile_directory()}}/{{year}}/day{{day}}/_solve"
+    {{justfile_directory()}}/{{year}}/day{{day}}/_solve "{{justfile_directory()}}/{{year}}/day{{day}}/{{input_filename}}"
+
 # Run rust solution of given year and day for the supplied input filename
 run_rust year day input_filename:
     rustc "{{justfile_directory()}}/{{year}}/day{{day}}/solve.rs" -o "{{justfile_directory()}}/{{year}}/day{{day}}/_solve"
@@ -36,6 +41,8 @@ run input_filename year="" day="" language="":
     lang=""
     if [ -f "$dir/solve.rs" ]; then
         lang="rust"
+    elif [ -f "$dir/solve.c" ]; then
+        lang="c"
     elif [ -f "$dir/solve.py" ]; then
         lang="python"
     elif [ -f "$dir/solve.rb" ]; then
@@ -66,6 +73,11 @@ new_dir day year:
 # Copy rust template to directory for given day and year
 new_rust day year:
     cp "{{justfile_directory()}}/template.rs" "{{justfile_directory()}}/{{year}}/day{{day}}/solve.rs"
+
+# Copy C template to directory for given day and year
+new_c day year:
+    cp "{{justfile_directory()}}/template.c" "{{justfile_directory()}}/{{year}}/day{{day}}/solve.c"
+
 
 # Copy python template to directory for given day and year
 new_python day year:
