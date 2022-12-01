@@ -133,5 +133,6 @@ get year="" day="":
         exit 1
     fi
     dir="{{justfile_directory()}}/$year/day$day"
+    day=$(echo "$day" | sed 's/0*//')
     curl "https://adventofcode.com/$year/day/$day/input" --cookie "session=$session" -o "$dir/input"
 
