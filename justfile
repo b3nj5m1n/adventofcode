@@ -90,7 +90,7 @@ new language day="" year="":
     if [ -z "{{day}}" ] && [ $(date +%m) == 12 ]; then
         day="{{current_day}}"
     elif [ -n "{{day}}" ]; then
-        day="{{day}}"
+        day=$(printf "%02d" "{{day}}")
     else
         echo "It's not december and you didn't supply a day, idk what to do."
         exit 1
