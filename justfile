@@ -8,6 +8,11 @@ run_c year day input_filename:
 
 # Run rust solution of given year and day for the supplied input filename
 run_rust year day input_filename:
+    #!/usr/bin/env sh
+    cd "{{justfile_directory()}}/{{year}}/day{{day}}"
+    cargo run "{{justfile_directory()}}/{{year}}/day{{day}}/{{input_filename}}"
+
+run_rust_single_file year day input_filename:
     rustc "{{justfile_directory()}}/{{year}}/day{{day}}/solve.rs" -o "{{justfile_directory()}}/{{year}}/day{{day}}/_solve"
     {{justfile_directory()}}/{{year}}/day{{day}}/_solve "{{justfile_directory()}}/{{year}}/day{{day}}/{{input_filename}}"
 
@@ -40,6 +45,8 @@ run input_filename year="" day="" language="":
     dir="{{justfile_directory()}}/$year/day$day"
     lang=""
     if [ -f "$dir/solve.rs" ]; then
+        lang="rust_single_file"
+    elif [ -f "$dir/Cargo.toml" ]; then
         lang="rust"
     elif [ -f "$dir/solve.c" ]; then
         lang="c"
@@ -73,12 +80,13 @@ new_dir day year:
 
 # Copy rust template to directory for given day and year
 new_rust day year:
-    cp -r "{{justfile_directory()}}/templates/rust" "{{justfile_directory()}}/{{year}}/day{{day}}"
+    cargo new "{{justfile_directory()}}/{{year}}/day{{day}}"
+    cp "{{justfile_directory()}}/templates/rust/solve.rs" "{{justfile_directory()}}/{{year}}/day{{day}}/src/main.rs"
+    cp "{{justfile_directory()}}/templates/rust/.gitignore" "{{justfile_directory()}}/{{year}}/day{{day}}/.gitignore"
 
 # Copy C template to directory for given day and year
 new_c day year:
     cp -r "{{justfile_directory()}}/templates/c" "{{justfile_directory()}}/{{year}}/day{{day}}"
-
 
 # Copy python template to directory for given day and year
 new_python day year:
