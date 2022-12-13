@@ -68,20 +68,21 @@ answer year="" day="" input_filename="input" language="":
 
 # Create new directory for supplied day and year
 new_dir day year:
-    mkdir -p "{{justfile_directory()}}/{{year}}/day{{day}}/"
+    # mkdir -p "{{justfile_directory()}}/{{year}}/day{{day}}/"
+    mkdir -p "{{justfile_directory()}}/{{year}}/"
 
 # Copy rust template to directory for given day and year
 new_rust day year:
-    cp "{{justfile_directory()}}/template.rs" "{{justfile_directory()}}/{{year}}/day{{day}}/solve.rs"
+    cp -r "{{justfile_directory()}}/templates/rust" "{{justfile_directory()}}/{{year}}/day{{day}}"
 
 # Copy C template to directory for given day and year
 new_c day year:
-    cp "{{justfile_directory()}}/template.c" "{{justfile_directory()}}/{{year}}/day{{day}}/solve.c"
+    cp -r "{{justfile_directory()}}/templates/c" "{{justfile_directory()}}/{{year}}/day{{day}}"
 
 
 # Copy python template to directory for given day and year
 new_python day year:
-    cp "{{justfile_directory()}}/template.py" "{{justfile_directory()}}/{{year}}/day{{day}}/solve.py"
+    cp -r "{{justfile_directory()}}/templates/python" "{{justfile_directory()}}/{{year}}/day{{day}}"
 
 # Create new solution for today or supplied day and year in given language
 new language day="" year="":
