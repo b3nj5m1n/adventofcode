@@ -93,55 +93,23 @@ fn dist(sensor: (i64, i64), beacon: (i64, i64)) -> i64 {
     (sensor.0 - beacon.0).abs() + (sensor.1 - beacon.1).abs()
 }
 
-/* fn covered(sensor: &Sensor, beacon: &Beacon, set: &mut HashSet<(i64, i64)>) {
-    let d = dist(sensor, beacon);
-    // println!("{}", d);
-    for i in 1..d {
-        for x in -i..i {
-            for y in -i..i {
-                println!("d: {d}, x: {x}, y: {y}");
-                let potential_beacon = Beacon {
-                    x: sensor.x + x,
-                    y: sensor.y + y,
-                };
-                let d1 = dist(&sensor, &potential_beacon);
-                if d1 <= d {
-                    set.insert((sensor.x + x, sensor.y + y));
-                }
-            }
-        }
-    }
-} */
-
 fn update_bounds(
     sensor: &Sensor,
-    beacon: &Beacon,
+    distance: &i64,
     bounds: (i64, i64, i64, i64),
 ) -> (i64, i64, i64, i64) {
     let mut b = bounds;
-    if sensor.x > b.0 {
-        b.0 = sensor.x;
+    if sensor.x + distance > b.0 {
+        b.0 = sensor.x + distance;
     }
-    if sensor.x < b.1 {
-        b.1 = sensor.x;
+    if sensor.x - distance < b.1 {
+        b.1 = sensor.x - distance;
     }
-    if sensor.y > b.2 {
-        b.2 = sensor.y;
+    if sensor.y + distance > b.2 {
+        b.2 = sensor.y + distance;
     }
-    if sensor.y < b.3 {
-        b.3 = sensor.y;
-    }
-    if beacon.x > b.0 {
-        b.0 = beacon.x;
-    }
-    if beacon.x < b.1 {
-        b.1 = beacon.x;
-    }
-    if beacon.y > b.2 {
-        b.2 = beacon.y;
-    }
-    if beacon.y < b.3 {
-        b.3 = beacon.y;
+    if sensor.y - distance < b.3 {
+        b.3 = sensor.y - distance;
     }
     b
 }
@@ -165,33 +133,29 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     let mut beacon_locations = HashSet::new();
     let mut bounds = (0, 0, 0, 0);
     let mut sb = Vec::new();
-    let mut sb_p2 = Vec::new();
     let cap = 4000000;
     for line in inp {
         let (sensor, beacon) = parse_line(line).unwrap().1;
-        bounds = update_bounds(&sensor, &beacon, bounds);
+        let d = dist((sensor.x, sensor.y), (beacon.x, beacon.y));
+        bounds = update_bounds(&sensor, &d, bounds);
         sb.push((
             (sensor.x, sensor.y),
-            dist((sensor.x, sensor.y), (beacon.x, beacon.y)),
+            d,
         ));
         beacon_locations.insert((beacon.x, beacon.y));
-        sb_p2.push((
-            (sensor.x, sensor.y),
-            dist((sensor.x, sensor.y), (beacon.x, beacon.y)),
-        ));
     }
     let search_height = 2000000;
     let mut i = 0;
-    for x in bounds.1 - 5000000..bounds.0 + 5000000 {
+    for x in bounds.1..bounds.0 {
         if !possible_beacon((x, search_height), &sb, &beacon_locations) {
             i += 1;
         }
     }
     res.part_1 = i.to_string();
-    sb_p2.sort();
+    sb.sort();
     for y in 0..=cap {
         let mut occupied = Vec::new();
-        for (coords, d) in sb_p2.iter() {
+        for (coords, d) in sb.iter() {
             if (coords.1 - d..=coords.1 + d).contains(&y) {
                 let z = if y < coords.1 {
                     ((coords.1 - d) - y).abs()
@@ -220,7 +184,7 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
                 Ok((min(*a.start(), *b.start()))..=(max(*a.end(), *b.end())))
             } else {
                 for x in 0..=cap {
-                    if possible_beacon((x, y), &sb_p2, &beacon_locations) {
+                    if possible_beacon((x, y), &sb, &beacon_locations) {
                         res.part_2 = (x * 4000000 + y).to_string();
                     }
                 }
