@@ -1,20 +1,12 @@
-// This was horrible, it took me 16 hours to get part 1, and I actually spend a significant amount
-// of those 16 hours actively working on the solution. In the end, I had to resort to outside help.
-// I initially had some massive misconceptions about how this problem works, which lead to me
-// implementing it incorrectly. It gets even weirder though, on the example input, the result is
-// off by 20, on the actual input, it produces the correct answer. I have no idea why this is and
-// I'm too tired to care, I literally spend the entire day working on this. We'll see if and when I
-// get to part two. I'll include my original versions, in v1 I got very close to the correct answer
-// to the example, but I think that's more luck than anything else, the second version uses
-// petgraph und should, in theory, be much nicer to work with, unfortunately I couldn't figure out
-// which algorthms to actually use to get the answer.
-
-use std::borrow::Borrow;
-use std::cell::RefCell;
-use std::cmp::max;
+use itertools::Itertools;
+use petgraph::adj::NodeIndex;
+use petgraph::algo::{self, floyd_warshall};
+use petgraph::data::Build;
+use petgraph::dot::{Config, Dot};
+use petgraph::visit::{depth_first_search, Bfs, Dfs, DfsEvent, DfsPostOrder, IntoEdges, NodeRef};
+use petgraph::{Direction, Graph};
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::env::{self, current_dir};
-use std::hash::Hash;
 use std::io::Read;
 
 use nom::branch::alt;
@@ -50,7 +42,7 @@ fn main() {
     // Solve
     solve(inp, &mut result);
     // Output the solutions
-    output(&result);
+    // output(&result);
 }
 
 // Struct for solution values
@@ -59,7 +51,7 @@ struct Result {
     part_2: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Valve<'a> {
     name: &'a str,
     flow_rate: u32,
@@ -86,90 +78,72 @@ fn parse_valve(input: &str) -> IResult<&str, Valve> {
     ))
 }
 
-#[derive(Eq, PartialEq, Debug)]
-struct CallSig<'a> {
-    current: &'a str,
-    opened: HashSet<&'a str>,
-    minutes_left: u32,
-}
-
-impl Hash for CallSig<'_> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.current.hash(state);
-        for open in self.opened.iter() {
-            open.hash(state);
-        }
-        /* self.opened
-        .clone()
-        .into_iter()
-        .collect::<String>()
-        .hash(state); */
-        self.minutes_left.hash(state);
-    }
-}
-
-fn get_max_flow<'a>(
-    current: &'a str,
-    opened: HashSet<&'a str>,
-    minutes_left: u32,
-    valves: &'a HashMap<&str, Valve>,
-    memo: &'a RefCell<HashMap<CallSig<'a>, u32>>,
-) -> u32 {
-    // println!("{minutes_left}");
-    let call_sig = CallSig {
-        current,
-        opened: opened.clone(),
-        minutes_left,
-    };
-    if memo.borrow().contains_key(&call_sig) {
-        // println!("Cache hit");
-        return *memo.borrow().get(&call_sig).unwrap();
-    }
-    // println!("Cache miss");
-    // dbg!(memo);
-    // println!("{current}");
-    if minutes_left == 0 {
-        return 0;
-    }
-    if opened.contains(current) {
-        return 0;
-    }
-    let mut current_best = 0;
-    let current_valve = valves.get(&current).unwrap();
-    let current_value = current_valve.flow_rate * (minutes_left - 1);
-    let mut opened_current = opened.clone();
-    opened_current.insert(current);
-    for neighbour in current_valve.leads_to.iter() {
-        current_best = max(
-            current_best,
-            get_max_flow(neighbour, opened.clone(), minutes_left - 1, valves, &memo),
-        );
-        if current_value != 0 {
-            current_best = max(
-                current_best,
-                current_value
-                    + get_max_flow(neighbour, opened_current.clone(), minutes_left - 2, valves, &memo),
-            );
-        }
-    }
-    memo.borrow_mut().insert(call_sig, current_best);
-    current_best
-}
-
-// Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
+    // This holds all the parsed valve structs
     let mut valves = HashMap::new();
+    // Petgraph for the valve/tunnel layout
+    let mut graph = Graph::<Valve, u32>::new();
+    // This will hold the node index of the root node
+    let mut root = None;
+    // Parse input into valves and add nodes to graph
     for line in inp {
         let valve = parse_valve(line).unwrap().1;
-        valves.insert(valve.name, valve);
+        let node = graph.add_node(valve.clone());
+        if valve.name == "AA" {
+            root = Some(node);
+        }
+        valves.insert(valve.name, (valve.clone(), node));
     }
-    res.part_1 = get_max_flow(
-        "AA",
-        HashSet::new(),
-        30,
-        &valves,
-        &mut RefCell::new(HashMap::new()),
-    )
-    .to_string();
-    // dbg!(valves);
+    // Extract root
+    let root = root.expect("Root node not found");
+    // Add connecting edges between nodes
+    for (valve, node) in valves.values() {
+        for neighbor in valve.leads_to.iter() {
+            let (_, neighbor_node) = valves.get(neighbor).unwrap();
+            let weight = 1;
+            graph.add_edge(*node, *neighbor_node, weight);
+        }
+    }
+    // Vector containing node indicies for valves with flow rate 0
+    let mut to_remove = Vec::new();
+    // Do a traversal of the graph and remove valves with flow rate 0 to reduce search space
+    // This could get problematic with multiple 0s in sequence, I hope the fact this is a bfs gets
+    // rid of that problem since we're adding the new edges immediately.
+    let mut bfs = Bfs::new(&graph, root);
+    while let Some(nx) = bfs.next(&graph) {
+        if graph[nx].flow_rate == 0 && nx != root {
+            let mut neighbors_in_ = graph.neighbors_directed(nx, Direction::Incoming).detach();
+            let mut neighbors_in = Vec::new();
+            while let Some(n) = neighbors_in_.next_node(&graph) {
+                neighbors_in.push(n);
+            }
+            let mut neighbors_out_ = graph.neighbors_directed(nx, Direction::Outgoing).detach();
+            let mut neighbors_out = Vec::new();
+            while let Some(n) = neighbors_out_.next_node(&graph) {
+                neighbors_out.push(n);
+            }
+            let mut new_edges = Vec::new();
+            for (a, b) in neighbors_in
+                .into_iter()
+                .cartesian_product(neighbors_out.into_iter())
+            {
+                if a == b {
+                    continue;
+                }
+                let w1 = graph.edge_weight(graph.find_edge(a, nx).unwrap()).unwrap();
+                let w2 = graph.edge_weight(graph.find_edge(b, nx).unwrap()).unwrap();
+                new_edges.push((a, b, w1 + w2));
+            }
+            for (a, b, w) in new_edges {
+                graph.add_edge(a, b, w);
+            }
+            to_remove.push(nx);
+        }
+    }
+    // Remove the valves with flow rate 0 from the graph
+    for nx in to_remove {
+        graph.remove_node(nx);
+    }
+    // let res = floyd_warshall(&graph, |edge| 1).unwrap();
+    println!("{:?}", Dot::new(&graph));
 }
