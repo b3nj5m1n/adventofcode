@@ -5,8 +5,11 @@ use petgraph::data::Build;
 use petgraph::dot::{Config, Dot};
 use petgraph::visit::{depth_first_search, Bfs, Dfs, DfsEvent, DfsPostOrder, IntoEdges, NodeRef};
 use petgraph::{Direction, Graph};
+use std::cell::RefCell;
+use std::cmp::max;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::env::{self, current_dir};
+use std::hash::Hash;
 use std::io::Read;
 
 use nom::branch::alt;
@@ -78,6 +81,90 @@ fn parse_valve(input: &str) -> IResult<&str, Valve> {
     ))
 }
 
+#[derive(Eq, PartialEq, Debug)]
+struct CallSig {
+    current: petgraph::graph::NodeIndex,
+    opened: HashSet<petgraph::graph::NodeIndex>,
+    minutes_left: u32,
+}
+
+impl Hash for CallSig {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.current.hash(state);
+        for open in self.opened.iter() {
+            open.hash(state);
+        }
+        self.minutes_left.hash(state);
+    }
+}
+
+fn get_max_flow<'a>(
+    current: petgraph::graph::NodeIndex,
+    opened: HashSet<petgraph::graph::NodeIndex>,
+    minutes_left: u32,
+    valves: &Graph<Valve, u32>,
+    memo: &'a RefCell<HashMap<CallSig, u32>>,
+) -> u32 {
+    let call_sig = CallSig {
+        current,
+        opened: opened.clone(),
+        minutes_left,
+    };
+    if memo.borrow().contains_key(&call_sig) {
+        return *memo.borrow().get(&call_sig).unwrap();
+    }
+    if minutes_left == 0 {
+        return 0;
+    }
+    if opened.contains(&current) {
+        return 0;
+    }
+    let mut current_best = 0;
+    // todo!()
+    let current_value = valves[current].flow_rate * (minutes_left - 1);
+    let mut opened_current = opened.clone();
+    opened_current.insert(current);
+    let mut neighbours_ = valves
+        .neighbors_directed(current, Direction::Outgoing)
+        .detach();
+    let mut neighbors = Vec::new();
+    while let Some(n) = neighbours_.next_node(&valves) {
+        neighbors.push(n);
+    }
+    for neighbour in neighbors {
+        let cost = valves
+            .edge_weight(valves.find_edge(current, neighbour).unwrap())
+            .unwrap();
+        if minutes_left > *cost {
+            current_best = max(
+                current_best,
+                get_max_flow(
+                    neighbour,
+                    opened.clone(),
+                    minutes_left - cost,
+                    &valves,
+                    &memo,
+                ),
+            );
+        }
+        if minutes_left > (cost + 1) {
+            current_best = max(
+                current_best,
+                current_value
+                    + get_max_flow(
+                        neighbour,
+                        opened_current.clone(),
+                        minutes_left - (cost + 1),
+                        &valves,
+                        &memo,
+                    ),
+            );
+        }
+    }
+    memo.borrow_mut().insert(call_sig, current_best);
+    current_best
+}
+
 fn solve(inp: Vec<&str>, res: &mut Result) {
     // This holds all the parsed valve structs
     let mut valves = HashMap::new();
@@ -95,7 +182,7 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         valves.insert(valve.name, (valve.clone(), node));
     }
     // Extract root
-    let root = root.expect("Root node not found");
+    let mut root = root.expect("Root node not found");
     // Add connecting edges between nodes
     for (valve, node) in valves.values() {
         for neighbor in valve.leads_to.iter() {
@@ -144,6 +231,19 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     for nx in to_remove {
         graph.remove_node(nx);
     }
+    let mut bfs = Bfs::new(&graph, petgraph::graph::NodeIndex::new(0));
+    while let Some(nx) = bfs.next(&graph) {
+        if graph[nx].name == "AA" {
+            root = nx;
+        }
+    }
     // let res = floyd_warshall(&graph, |edge| 1).unwrap();
-    println!("{:?}", Dot::new(&graph));
+    // println!("{:?}", Dot::new(&graph));
+    dbg!(get_max_flow(
+        root,
+        HashSet::new(),
+        30,
+        &graph,
+        &RefCell::new(HashMap::new()),
+    ));
 }
