@@ -1,5 +1,8 @@
 // I tested positive for COVID yesterday and I'm feeling absolutely horrible, I can barely focus so
 // I might stick to just doing part 1 until I'm feeling better.
+// Okay so I decided to have some fun and I implemented part 2 by serializing the equation
+// (replacing humn with x) and then simply sticking that in to [qalc](https://github.com/Qalculate/libqalculate)
+// I'll hopefully not forget to solve part 2 properly when I'm feeling better
 use std::collections::HashMap;
 use std::env;
 use std::io::Read;
@@ -136,6 +139,50 @@ fn parse_monkey_result(input: &str) -> IResult<&str, MonkeyResult> {
     ))
 }
 
+fn serialize(
+    root: &str,
+    monkeys_result: &Vec<MonkeyResult>,
+    monkeys_yell: &HashMap<&str, i64>,
+) -> String {
+    if let Some(x) = monkeys_yell.get(root) {
+        return x.to_string();
+    }
+    let current = match monkeys_result.iter().find(|x| x.name == root) {
+        Some(x) => x,
+        None => return "x".to_string(),
+    };
+
+    let right = if let Some(x) = current.number_a {
+        x.to_string()
+    } else {
+        serialize(current.monkey_a.unwrap(), monkeys_result, monkeys_yell)
+    };
+    let left = if let Some(x) = current.number_b {
+        x.to_string()
+    } else {
+        serialize(current.monkey_b.unwrap(), monkeys_result, monkeys_yell)
+    };
+
+    if current.name == "root" {
+        right + &String::from("=") + &left
+    } else {
+        match current.operation {
+            Operation::Add => {
+                String::from("(") + &right + &String::from("+") + &left + &String::from(")")
+            }
+            Operation::Sub => {
+                String::from("(") + &right + &String::from("-") + &left + &String::from(")")
+            }
+            Operation::Mul => {
+                String::from("(") + &right + &String::from("*") + &left + &String::from(")")
+            }
+            Operation::Div => {
+                String::from("(") + &right + &String::from("/") + &left + &String::from(")")
+            }
+        }
+    }
+}
+
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
     let mut monkeys_result = Vec::new();
@@ -145,9 +192,14 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
             monkeys_result.push(monkey);
         }
         if let Ok((input, monkey)) = parse_monkey_yell(line) {
+            if monkey.name == "humn" { continue; }
             monkeys_yell.insert(monkey.name, monkey.number);
         }
     }
+
+    println!("{}", serialize("root", &monkeys_result, &monkeys_yell));
+    panic!();
+
     /* println!("Result length: {}", monkeys_result.len());
     println!("Yell length: {}", monkeys_yell.len()); */
     while monkeys_result.len() > 0 {
