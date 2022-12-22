@@ -3,7 +3,7 @@ use petgraph::visit::Bfs;
 use petgraph::{Direction, Graph};
 use std::cell::RefCell;
 use std::cmp::max;
-use std::collections::{HashMap, BTreeSet};
+use std::collections::{BTreeSet, HashMap};
 use std::env;
 use std::hash::{Hash, Hasher};
 use std::io::Read;
@@ -85,31 +85,27 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 
 fn get_max_flow<'a>(
     current: petgraph::graph::NodeIndex,
-    opened: BTreeSet<petgraph::graph::NodeIndex>,
+    opened: &'a BTreeSet<usize>,
     minutes_left: u32,
     valves: &Graph<Valve, u32>,
-    memo: &'a RefCell<HashMap<(petgraph::graph::NodeIndex, u32, u64), u32>>,
+    memo: &'a RefCell<HashMap<(usize, u32, u64), u32>>,
 ) -> u32 {
     if minutes_left == 0 {
         return 0;
     }
-    if opened.contains(&current) {
-        return 0;
-    }
-    /* let call_sig = CallSig {
-        current,
-        opened: opened.clone(),
-        minutes_left,
-    }; */
     let h = calculate_hash(&opened);
-    if memo.borrow().contains_key(&(current, minutes_left, h)) {
-        return *memo.borrow().get(&(current, minutes_left, h)).unwrap();
+    if memo
+        .borrow()
+        .contains_key(&(current.index(), minutes_left, h))
+    {
+        return *memo
+            .borrow()
+            .get(&(current.index(), minutes_left, h))
+            .unwrap();
     }
     let mut current_best = 0;
     // todo!()
     let current_value = valves[current].flow_rate * (minutes_left - 1);
-    let mut opened_current = opened.clone();
-    opened_current.insert(current);
     let mut neighbours_ = valves
         .neighbors_directed(current, Direction::Outgoing)
         .detach();
@@ -124,22 +120,18 @@ fn get_max_flow<'a>(
         if minutes_left > *cost {
             current_best = max(
                 current_best,
-                get_max_flow(
-                    neighbour,
-                    opened.clone(),
-                    minutes_left - cost,
-                    valves,
-                    memo,
-                ),
+                get_max_flow(neighbour, &opened, minutes_left - cost, valves, memo),
             );
         }
-        if minutes_left > (cost + 1) {
+        if minutes_left > (cost + 1) && !opened.contains(&current.index()) {
+            let mut opened_current = opened.clone();
+            opened_current.insert(current.index());
             current_best = max(
                 current_best,
                 current_value
                     + get_max_flow(
                         neighbour,
-                        opened_current.clone(),
+                        &opened_current,
                         minutes_left - (cost + 1),
                         valves,
                         memo,
@@ -147,7 +139,8 @@ fn get_max_flow<'a>(
             );
         }
     }
-    memo.borrow_mut().insert((current, minutes_left, h), current_best);
+    memo.borrow_mut()
+        .insert((current.index(), minutes_left, h), current_best);
     // println!("{}", memo.borrow().len());
     current_best
 }
@@ -226,12 +219,13 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     }
     // let res = floyd_warshall(&graph, |edge| 1).unwrap();
     // println!("{:?}", Dot::new(&graph));
-    
+
     res.part_1 = get_max_flow(
         root,
-        BTreeSet::new(),
+        &BTreeSet::new(),
         30,
         &graph,
         &RefCell::new(HashMap::new()),
-    ).to_string();
+    )
+    .to_string();
 }
