@@ -1,23 +1,18 @@
 use itertools::Itertools;
-use petgraph::adj::NodeIndex;
-use petgraph::algo::{self, floyd_warshall};
-use petgraph::data::Build;
-use petgraph::dot::{Config, Dot};
-use petgraph::visit::{depth_first_search, Bfs, Dfs, DfsEvent, DfsPostOrder, IntoEdges, NodeRef};
+use petgraph::visit::Bfs;
 use petgraph::{Direction, Graph};
 use std::cell::RefCell;
 use std::cmp::max;
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::env::{self, current_dir};
-use std::hash::Hash;
+use std::collections::{HashMap, BTreeSet};
+use std::env;
+use std::hash::{Hash, Hasher};
 use std::io::Read;
 
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::character::complete::{alphanumeric1, space0};
-use nom::character::is_newline;
 use nom::multi::separated_list0;
-use nom::sequence::{delimited, separated_pair, terminated};
+use nom::sequence::{delimited, terminated};
 use nom::IResult;
 
 // Function to output the solutions to both parts
@@ -34,7 +29,7 @@ fn main() {
     let mut file_handle = std::fs::File::open(&args[1]).unwrap();
     let mut inp = String::new();
     file_handle.read_to_string(&mut inp).unwrap();
-    let inp: Vec<&str> = inp.split("\n").filter(|line| !line.is_empty()).collect();
+    let inp: Vec<&str> = inp.split('\n').filter(|line| !line.is_empty()).collect();
 
     // Struct storing the resulting values
     let mut result: Result = Result {
@@ -45,7 +40,7 @@ fn main() {
     // Solve
     solve(inp, &mut result);
     // Output the solutions
-    // output(&result);
+    output(&result);
 }
 
 // Struct for solution values
@@ -81,43 +76,34 @@ fn parse_valve(input: &str) -> IResult<&str, Valve> {
     ))
 }
 
-#[derive(Eq, PartialEq, Debug)]
-struct CallSig {
-    current: petgraph::graph::NodeIndex,
-    opened: HashSet<petgraph::graph::NodeIndex>,
-    minutes_left: u32,
-}
-
-impl Hash for CallSig {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.current.hash(state);
-        for open in self.opened.iter() {
-            open.hash(state);
-        }
-        self.minutes_left.hash(state);
-    }
+use fasthash::SeaHasher;
+fn calculate_hash<T: Hash>(t: &T) -> u64 {
+    let mut s: SeaHasher = Default::default();
+    t.hash(&mut s);
+    s.finish()
 }
 
 fn get_max_flow<'a>(
     current: petgraph::graph::NodeIndex,
-    opened: HashSet<petgraph::graph::NodeIndex>,
+    opened: BTreeSet<petgraph::graph::NodeIndex>,
     minutes_left: u32,
     valves: &Graph<Valve, u32>,
-    memo: &'a RefCell<HashMap<CallSig, u32>>,
+    memo: &'a RefCell<HashMap<(petgraph::graph::NodeIndex, u32, u64), u32>>,
 ) -> u32 {
-    let call_sig = CallSig {
-        current,
-        opened: opened.clone(),
-        minutes_left,
-    };
-    if memo.borrow().contains_key(&call_sig) {
-        return *memo.borrow().get(&call_sig).unwrap();
-    }
     if minutes_left == 0 {
         return 0;
     }
     if opened.contains(&current) {
         return 0;
+    }
+    /* let call_sig = CallSig {
+        current,
+        opened: opened.clone(),
+        minutes_left,
+    }; */
+    let h = calculate_hash(&opened);
+    if memo.borrow().contains_key(&(current, minutes_left, h)) {
+        return *memo.borrow().get(&(current, minutes_left, h)).unwrap();
     }
     let mut current_best = 0;
     // todo!()
@@ -128,7 +114,7 @@ fn get_max_flow<'a>(
         .neighbors_directed(current, Direction::Outgoing)
         .detach();
     let mut neighbors = Vec::new();
-    while let Some(n) = neighbours_.next_node(&valves) {
+    while let Some(n) = neighbours_.next_node(valves) {
         neighbors.push(n);
     }
     for neighbour in neighbors {
@@ -142,8 +128,8 @@ fn get_max_flow<'a>(
                     neighbour,
                     opened.clone(),
                     minutes_left - cost,
-                    &valves,
-                    &memo,
+                    valves,
+                    memo,
                 ),
             );
         }
@@ -155,13 +141,14 @@ fn get_max_flow<'a>(
                         neighbour,
                         opened_current.clone(),
                         minutes_left - (cost + 1),
-                        &valves,
-                        &memo,
+                        valves,
+                        memo,
                     ),
             );
         }
     }
-    memo.borrow_mut().insert(call_sig, current_best);
+    memo.borrow_mut().insert((current, minutes_left, h), current_best);
+    // println!("{}", memo.borrow().len());
     current_best
 }
 
@@ -239,11 +226,12 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     }
     // let res = floyd_warshall(&graph, |edge| 1).unwrap();
     // println!("{:?}", Dot::new(&graph));
-    dbg!(get_max_flow(
+    
+    res.part_1 = get_max_flow(
         root,
-        HashSet::new(),
+        BTreeSet::new(),
         30,
         &graph,
         &RefCell::new(HashMap::new()),
-    ));
+    ).to_string();
 }
