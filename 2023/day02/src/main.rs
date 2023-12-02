@@ -21,7 +21,7 @@ fn main() {
     // Struct storing the resulting values
     let mut result: Result = Result {
         part_1: 0,
-        part_2: String::from(""),
+        part_2: 0,
     };
 
     // Solve
@@ -33,7 +33,7 @@ fn main() {
 // Struct for solution values
 struct Result {
     part_1: u32,
-    part_2: String,
+    part_2: u64,
 }
 
 #[derive(Debug)]
@@ -143,6 +143,26 @@ impl Game {
         }
         true
     }
+    fn minimum(&self) -> (u64, u64, u64) {
+        let mut min_r = 0;
+        let mut min_b = 0;
+        let mut min_g = 0;
+        for subset in &self.sets {
+            for set in subset {
+                match set.color {
+                    Color::Red => if u64::from(set.count) > min_r { min_r = set.count.into() },
+                    Color::Blue => if u64::from(set.count) > min_b { min_b = set.count.into() },
+                    Color::Green => if u64::from(set.count) > min_g { min_g = set.count.into() },
+                }
+            }
+        };
+        (min_r, min_b, min_g)
+    }
+    fn power(&self) -> u64 {
+        let min = self.minimum();
+        // dbg!(min);
+        min.0 * min.1 * min.2
+    }
 }
 
 // Function to solve both parts
@@ -153,6 +173,8 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         if g.possible(12,14,13) {
             res.part_1 += g.id;
         }
-        // dbg!(g);
+        let p = g.power();
+        res.part_2 += p;
+        // dbg!(p);
     }
 }
