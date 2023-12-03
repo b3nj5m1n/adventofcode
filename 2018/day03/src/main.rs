@@ -82,9 +82,13 @@ fn parse_claim(input: &str) -> IResult<&str, Claim> {
 
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
+    let claims: Vec<_> = inp
+        .iter()
+        .map(|line| parse_claim(line).expect("Parsing failed"))
+        .map(|(_, claim)| claim)
+        .collect();
     let mut grid = HashMap::new();
-    for line in inp {
-        let (_, claim) = parse_claim(line).expect("Parsing failed");
+    for claim in claims.iter() {
         for x in claim.offset_left..(claim.offset_left + claim.width) {
             for y in claim.offset_top..(claim.offset_top + claim.height) {
                 grid.entry((x, y))
@@ -97,5 +101,21 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         if *count >= 2 {
             res.part_1 += 1;
         }
+    }
+    // Very inefficient but yk I wasn't planning on randomly doing a 2018 challenge
+    'outer: for claim in claims {
+        for x in claim.offset_left..(claim.offset_left + claim.width) {
+            for y in claim.offset_top..(claim.offset_top + claim.height) {
+                if let Some(&count) = grid.get(&(x,y)) {
+                    if count != 1 {
+                        continue 'outer;
+                    }
+                } else {
+                    continue 'outer;
+                }
+            }
+        }
+        res.part_2 = claim.id;
+        break;
     }
 }
