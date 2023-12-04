@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use std::collections::HashSet;
+use std::collections::VecDeque;
 use std::env;
 use std::io::Read;
 
@@ -38,7 +40,7 @@ struct Result {
     part_2: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Card {
     id: u32,
     numbers_winning: HashSet<u32>,
@@ -78,24 +80,44 @@ impl TryFrom<&str> for Card {
 
 impl Card {
     fn value(&self) -> u32 {
-        let mut wins = 0;
-        for num_have in self.numbers_have.iter() {
-            if self.numbers_winning.contains(&num_have) {
-                wins += 1;
-            }
-        }
+        let wins = self.wins();
         let mut result = if wins > 0 { 1 } else { 0 };
         for _ in 1..wins {
             result *= 2;
         }
         result
     }
+    fn wins(&self) -> u32 {
+        let mut wins = 0;
+        for num_have in self.numbers_have.iter() {
+            if self.numbers_winning.contains(&num_have) {
+                wins += 1;
+            }
+        }
+        wins
+    }
 }
 
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
+    let mut cards = HashMap::new();
+    let mut q = VecDeque::new();
     for line in inp {
         let card: Card = line.try_into().expect("Parsing failed");
         res.part_1 += card.value();
+        cards.insert(card.id, card.clone());
+        q.push_back(card);
+    }
+    // Takes ~20 seconds on optimised build
+    while !q.is_empty() {
+        let current = q.pop_front().expect("Unreachable");
+        res.part_2 += 1;
+        println!("{}", q.len());
+        // println!("Id: {}", current.id);
+        for i in ((current.id + 1)..=(current.id + current.wins())).rev() {
+            // println!("{i}");
+            q.push_front(cards.get(&i).expect("Fuck").clone());
+        }
+        // println!("");
     }
 }
