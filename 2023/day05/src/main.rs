@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::env;
 use std::io::Read;
 
+use rayon::prelude::*;
+
 // Function to output the solutions to both parts
 fn output(result: &Result) {
     println!("Part 1: {}", &result.part_1);
@@ -72,7 +74,7 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .map(|n| n.parse::<u64>().unwrap())
         .collect();
 
-    println!("Constructing seed_to_soil");
+    // println!("Constructing seed_to_soil");
     // dbg!(&iter.clone().skip_while(|l| !l.contains("seed-to-soil")).collect::<Vec<_>>());
     let lines = iter
         .clone()
@@ -83,7 +85,7 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .collect();
     idk(&mut seed_to_soil, lines);
 
-    println!("Constructing soil_to_fert");
+    // println!("Constructing soil_to_fert");
     let lines = iter
         .clone()
         .skip_while(|l| !l.contains("soil-to-fertilizer"))
@@ -134,35 +136,84 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     idk(&mut humit_to_location, lines);
     // dbg!(&humit_to_location);
 
+    let mut memo = HashMap::new();
+
     // dbg!(&seed_to_soil);
     let mut locations = Vec::new();
-    for seed in seeds {
-        /* let mut soil = seed;
-        for ((start, range), mapsto) in seed_to_soil.iter() {
-            if seed > *start && seed < *start + *range {
-                dbg!(start, range, mapsto);
-                let offset = range - (start + range - seed);
-                dbg!(offset);
-                soil = mapsto + offset;
-            }
-        } */
-        let soil = get(seed, &mut seed_to_soil);
-        let fert = get(soil, &mut soil_to_fert);
-        let water = get(fert, &mut fert_to_water);
-        let light = get(water, &mut water_to_light);
-        let temp = get(light, &mut light_to_temp);
-        let hum = get(temp, &mut temp_to_humid);
-        let loc = get(hum, &mut humit_to_location);
+    for seed in seeds.clone() {
+        let loc = seed_to_loc(
+            seed,
+            &mut seed_to_soil,
+            &mut soil_to_fert,
+            &mut fert_to_water,
+            &mut water_to_light,
+            &mut light_to_temp,
+            &mut temp_to_humid,
+            &mut humit_to_location,
+        );
         locations.push(loc.clone());
     }
     res.part_1 = *locations.iter().min().unwrap();
+
+    // RUns in about 3 minutes on release build
+    let mut locations = Vec::new();
+    for i in (0..seeds.len()).filter(|n| n % 2 != 0) {
+        // if i % 100 == 0 {
+        println!("i: {i}");
+        // }
+        let seeds_start = seeds[i - 1];
+        let seeds_end = seeds[i];
+        let mut locs = (seeds_start..(seeds_start + seeds_end)).into_par_iter().map(|seed| {
+            if seed % 10000000 == 0 {
+                // println!("seed: {}", (seed / (seeds_start + seeds_end)) * 100);
+                println!("seed: {}\nof:   {}", seed, seeds_start + seeds_end);
+            }
+            // println!("{seed}");
+            let loc = seed_to_loc(
+                seed,
+                &mut seed_to_soil.clone(),
+                &mut soil_to_fert.clone(),
+                &mut fert_to_water.clone(),
+                &mut water_to_light.clone(),
+                &mut light_to_temp.clone(),
+                &mut temp_to_humid.clone(),
+                &mut humit_to_location.clone(),
+            );
+            loc
+            // println!("{loc}\n");
+            // locations.push(loc.clone());
+        }).collect::<Vec<_>>();
+        locations.append(&mut locs);
+        // dbg!(seeds_start, seeds_end);
+    }
+    res.part_2 = *locations.iter().min().unwrap();
+}
+
+fn seed_to_loc(
+    seed: u64,
+    mut seed_to_soil: &mut HashMap<(u64, u64), u64>,
+    mut soil_to_fert: &mut HashMap<(u64, u64), u64>,
+    mut fert_to_water: &mut HashMap<(u64, u64), u64>,
+    mut water_to_light: &mut HashMap<(u64, u64), u64>,
+    mut light_to_temp: &mut HashMap<(u64, u64), u64>,
+    mut temp_to_humid: &mut HashMap<(u64, u64), u64>,
+    mut humit_to_location: &mut HashMap<(u64, u64), u64>,
+) -> u64 {
+    let soil = get(seed, &mut seed_to_soil);
+    let fert = get(soil, &mut soil_to_fert);
+    let water = get(fert, &mut fert_to_water);
+    let light = get(water, &mut water_to_light);
+    let temp = get(light, &mut light_to_temp);
+    let hum = get(temp, &mut temp_to_humid);
+    let loc = get(hum, &mut humit_to_location);
+    loc
 }
 
 fn get(initial: u64, map: &mut HashMap<(u64, u64), u64>) -> u64 {
     let mut soil = initial;
     for ((start, range), mapsto) in map.iter() {
         // dbg!(start, range, mapsto);
-        if initial > *start && initial < *start + *range {
+        if initial >= *start && initial < *start + *range {
             // dbg!(start, range, mapsto);
             let offset = range - (start + range - initial);
             // dbg!(offset);
