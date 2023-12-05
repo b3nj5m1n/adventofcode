@@ -112,7 +112,7 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     while !q.is_empty() {
         let current = q.pop_front().expect("Unreachable");
         res.part_2 += 1;
-        println!("{}", q.len());
+        // println!("{}", q.len());
         // println!("Id: {}", current.id);
         for i in ((current.id + 1)..=(current.id + current.wins())).rev() {
             // println!("{i}");
