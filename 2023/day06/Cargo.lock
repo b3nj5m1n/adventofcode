@@ -99,6 +99,7 @@ name = "day06"
 version = "0.1.0"
 dependencies = [
  "cached",
+ "roots",
 ]
 
 [[package]]
@@ -155,6 +156,12 @@ checksum = "5267fca4496028628a95160fc423a33e8b2e6af8a5302579e322e4b520293cae"
 dependencies = [
  "proc-macro2",
 ]
+
+[[package]]
+name = "roots"
+version = "0.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "082f11ffa03bbef6c2c6ea6bea1acafaade2fd9050ae0234ab44a2153742b058"
 
 [[package]]
 name = "strsim"
