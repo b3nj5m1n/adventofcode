@@ -1,8 +1,8 @@
 use std::env;
 use std::io::Read;
-use std::str::FromStr;
 
-use anyhow;
+use cached::proc_macro::cached;
+use cached::SizedCache;
 
 // Function to output the solutions to both parts
 fn output(result: &Result) {
@@ -38,13 +38,13 @@ struct Result {
     part_2: usize,
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 struct Race {
     time: usize,
     dist: usize,
 }
 
-// Function to solve both parts
-fn solve(inp: Vec<&str>, res: &mut Result) {
+fn input_part1(inp: &Vec<&str>) -> Vec<Race> {
     let times = inp[0]
         .split_once(":")
         .unwrap()
@@ -63,47 +63,70 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     for (time, dist) in times.zip(dists) {
         races.push(Race { time, dist })
     }
-    let mut all_possibilities: Vec<usize> = Vec::new();
-    for race in races {
-        let mut possibilities = 0;
-        for ms in 1..race.time {
-            let speed = 1 * ms;
-            let dist = speed * (race.time - ms);
-            if dist > race.dist {
-                possibilities += 1;
-            }
+    races
+}
+fn input_part2(inp: &Vec<&str>) -> Race {
+    let time: usize = inp[0]
+        .split_once(":")
+        .unwrap()
+        .1
+        .trim()
+        .split_whitespace()
+        .collect::<String>()
+        .parse()
+        .unwrap();
+    let dist: usize = inp[1]
+        .split_once(":")
+        .unwrap()
+        .1
+        .trim()
+        .split_whitespace()
+        .collect::<String>()
+        .parse()
+        .unwrap();
+    Race { time, dist }
+}
+
+fn wins(wait: usize, dist_to_beat: usize, time_total: usize) -> bool {
+    let dist = wait * (time_total - wait);
+    dist > dist_to_beat
+}
+
+// Caching this reduces run time by about 25%
+#[cached(
+    type = "SizedCache<(usize, usize), usize>",
+    create = "{ SizedCache::with_size(500) }",
+    convert = r#"{ (race.time, race.dist) }"#,
+)]
+fn ways_to_win(race: &Race) -> usize {
+    let mut start = 0;
+    for ms in 1..race.time {
+        if wins(ms, race.dist, race.time) {
+            start = ms;
+            break;
         }
-        all_possibilities.push(possibilities);
     }
-    res.part_1 = all_possibilities.iter().fold(1, |a, b| a * b);
+    let mut end = 0;
+    for ms in (1..race.time).rev() {
+        if wins(ms, race.dist, race.time) {
+            end = ms;
+            break;
+        }
+    }
+    end - start + 1
+}
+
+// Function to solve both parts
+fn solve(inp: Vec<&str>, res: &mut Result) {
+    let races = input_part1(&inp);
+    let race_part2 = input_part2(&inp);
+
+    // Part 1
+    res.part_1 = races
+        .into_iter()
+        .map(|race| ways_to_win(&race))
+        .fold(1, |a, b| a * b);
 
     // Part 2
-    let the_time: usize = inp[0]
-        .split_once(":")
-        .unwrap()
-        .1
-        .trim()
-        .split_whitespace()
-        .collect::<String>()
-        .parse()
-        .unwrap();
-    let the_dist: usize = inp[1]
-        .split_once(":")
-        .unwrap()
-        .1
-        .trim()
-        .split_whitespace()
-        .collect::<String>()
-        .parse()
-        .unwrap();
-
-    let mut possibilities = Vec::new();
-    for ms in 1..the_time {
-        let speed = 1 * ms;
-        let dist = speed * (the_time - ms);
-        if dist > the_dist {
-            possibilities.push(ms);
-        }
-    }
-    res.part_2 = possibilities.len();
+    res.part_2 = ways_to_win(&race_part2);
 }
