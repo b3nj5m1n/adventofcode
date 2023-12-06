@@ -34,13 +34,13 @@ fn main() {
 
 // Struct for solution values
 struct Result {
-    part_1: u32,
-    part_2: u32,
+    part_1: usize,
+    part_2: usize,
 }
 
 struct Race {
-    time: u32,
-    dist: u32,
+    time: usize,
+    dist: usize,
 }
 
 // Function to solve both parts
@@ -51,33 +51,59 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .1
         .trim()
         .split_whitespace()
-        .map(|s| s.parse::<u32>().unwrap());
+        .map(|s| s.parse::<usize>().unwrap());
     let dists = inp[1]
         .split_once(":")
         .unwrap()
         .1
         .trim()
         .split_whitespace()
-        .map(|s| s.parse::<u32>().unwrap());
+        .map(|s| s.parse::<usize>().unwrap());
     let mut races = Vec::new();
-    for (time, dist) in times.clone().zip(dists.clone()) {
+    for (time, dist) in times.zip(dists) {
         races.push(Race { time, dist })
     }
-    let mut all_possibilities: Vec<u32> = Vec::new();
+    let mut all_possibilities: Vec<usize> = Vec::new();
     for race in races {
         let mut possibilities = 0;
         for ms in 1..race.time {
             let speed = 1 * ms;
             let dist = speed * (race.time - ms);
-            println!("speed: {speed}, dist: {dist}");
             if dist > race.dist {
                 possibilities += 1;
             }
         }
         all_possibilities.push(possibilities);
     }
-    dbg!(&all_possibilities);
-    res.part_1 = all_possibilities.iter().fold(1, |a, b| a*b);
+    res.part_1 = all_possibilities.iter().fold(1, |a, b| a * b);
 
+    // Part 2
+    let the_time: usize = inp[0]
+        .split_once(":")
+        .unwrap()
+        .1
+        .trim()
+        .split_whitespace()
+        .collect::<String>()
+        .parse()
+        .unwrap();
+    let the_dist: usize = inp[1]
+        .split_once(":")
+        .unwrap()
+        .1
+        .trim()
+        .split_whitespace()
+        .collect::<String>()
+        .parse()
+        .unwrap();
 
+    let mut possibilities = Vec::new();
+    for ms in 1..the_time {
+        let speed = 1 * ms;
+        let dist = speed * (the_time - ms);
+        if dist > the_dist {
+            possibilities.push(ms);
+        }
+    }
+    res.part_2 = possibilities.len();
 }
