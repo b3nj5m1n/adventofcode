@@ -98,9 +98,10 @@ fn get_hand_type_norm(cards: &Vec<char>) -> anyhow::Result<HandType> {
 }
 
 impl Hand {
-    /* fn get_type(&self) -> anyhow::Result<HandType> {
+    fn get_type(&self) -> anyhow::Result<HandType> {
+        let joker_count = self.cards.iter().filter(|&c| *c == 'J').count();
         let mut map: HashMap<&char, usize> = HashMap::new();
-        for c in self.cards.iter() {
+        for c in self.cards.iter().filter(|&c| *c != 'J') {
             map.entry(c)
                 .and_modify(|counter| *counter += 1)
                 .or_insert(1);
@@ -108,6 +109,12 @@ impl Hand {
         let mut vals: Vec<usize> = map.values().map(|c| *c).collect();
         vals.sort(); //)
         vals.reverse();
+        // All jokers
+        if vals.is_empty() {
+            vals.push(5);
+        } else {
+            vals[0] += joker_count;
+        }
 
         Ok(match vals.as_slice() {
             &[5] => HandType::FiveOfAKind,
@@ -119,124 +126,47 @@ impl Hand {
             &[1, 1, 1, 1, 1] => HandType::HighCard,
             _ => return anyhow::bail!("Fuck"),
         })
-    } */
-    fn get_type(&self) -> anyhow::Result<HandType> {
-        let mut todo = vec![self.cards.clone()];
-        let mut search_space = Vec::new();
-
-        while todo.len() > 0 {
-            let current = todo.pop().unwrap();
-            if !current.contains(&'J') {
-                search_space.push(current);
-                continue;
-            }
-            if current[0] == 'J' {
-                for c in ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'] {
-                    let mut new = current.clone();
-                    new[0] = c;
-                    todo.push(new);
-                }
-                continue;
-            }
-            if current[1] == 'J' {
-                for c in ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'] {
-                    let mut new = current.clone();
-                    new[1] = c;
-                    todo.push(new);
-                }
-                continue;
-            }
-            if current[2] == 'J' {
-                for c in ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'] {
-                    let mut new = current.clone();
-                    new[2] = c;
-                    todo.push(new);
-                }
-                continue;
-            }
-            if current[3] == 'J' {
-                for c in ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'] {
-                    let mut new = current.clone();
-                    new[3] = c;
-                    todo.push(new);
-                }
-                continue;
-            }
-            if current[4] == 'J' {
-                for c in ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2'] {
-                    let mut new = current.clone();
-                    new[4] = c;
-                    todo.push(new);
-                }
-                continue;
-            }
-        }
-        let mut possibilities = Vec::new();
-        for c in search_space.iter() {
-            possibilities.push(get_hand_type_norm(c).expect("Fuck"));
-        }
-        possibilities.sort();
-        Ok(*possibilities.last().unwrap())
     }
 }
 
-/* impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match self.get_type().ok()?.partial_cmp(&other.get_type().ok()?) {
-            Some(s) => match s {
-                std::cmp::Ordering::Less => {
-                    return Some(std::cmp::Ordering::Less);
-                }
-                std::cmp::Ordering::Greater => {
-                    return Some(std::cmp::Ordering::Greater);
-                }
-                std::cmp::Ordering::Equal => {}
-            },
-            None => return None,
+fn get_value_card(c: &char, part_2: bool) -> u32 {
+    if !part_2 {
+        match c {
+            'A' => 13,
+            'K' => 12,
+            'Q' => 11,
+            'J' => 10,
+            'T' => 9,
+            '9' => 8,
+            '8' => 7,
+            '7' => 6,
+            '6' => 5,
+            '5' => 4,
+            '4' => 3,
+            '3' => 2,
+            '2' => 1,
+            _ => panic!("Unreachable"),
         }
-        // It's eq
-        for (c1, c2) in self.cards.iter().zip(other.cards.iter()) {
-            if c1 == c2 {
-                continue;
-            }
-            let c1 = match c1 {
-                'A' => 13,
-                'K' => 12,
-                'Q' => 11,
-                'J' => 10,
-                'T' => 9,
-                '9' => 8,
-                '8' => 7,
-                '7' => 6,
-                '6' => 5,
-                '5' => 4,
-                '4' => 3,
-                '3' => 2,
-                '2' => 1,
-                _ => panic!("Unreachable"),
-            };
-            let c2 = match c2 {
-                'A' => 13,
-                'K' => 12,
-                'Q' => 11,
-                'J' => 10,
-                'T' => 9,
-                '9' => 8,
-                '8' => 7,
-                '7' => 6,
-                '6' => 5,
-                '5' => 4,
-                '4' => 3,
-                '3' => 2,
-                '2' => 1,
-                _ => panic!("Unreachable"),
-            };
-            return Some(c1.cmp(&c2));
+    } else {
+        match c {
+            'A' => 13,
+            'K' => 12,
+            'Q' => 11,
+            'T' => 10,
+            '9' => 9,
+            '8' => 8,
+            '7' => 7,
+            '6' => 6,
+            '5' => 5,
+            '4' => 4,
+            '3' => 3,
+            '2' => 2,
+            'J' => 1,
+            _ => panic!("Unreachable"),
         }
-        None
-        // return Some(self.cards.cmp(&other.cards).reverse());
     }
-} */
+}
+
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         match self.get_type().ok()?.partial_cmp(&other.get_type().ok()?) {
@@ -256,42 +186,11 @@ impl PartialOrd for Hand {
             if c1 == c2 {
                 continue;
             }
-            let c1 = match c1 {
-                'A' => 13,
-                'K' => 12,
-                'Q' => 11,
-                'T' => 10,
-                '9' => 9,
-                '8' => 8,
-                '7' => 7,
-                '6' => 6,
-                '5' => 5,
-                '4' => 4,
-                '3' => 3,
-                '2' => 2,
-                'J' => 1,
-                _ => panic!("Unreachable"),
-            };
-            let c2 = match c2 {
-                'A' => 13,
-                'K' => 12,
-                'Q' => 11,
-                'T' => 10,
-                '9' => 9,
-                '8' => 8,
-                '7' => 7,
-                '6' => 6,
-                '5' => 5,
-                '4' => 4,
-                '3' => 3,
-                '2' => 2,
-                'J' => 1,
-                _ => panic!("Unreachable"),
-            };
+            let c1 = get_value_card(c1, true);
+            let c2 = get_value_card(c2, true);
             return Some(c1.cmp(&c2));
         }
         None
-        // return Some(self.cards.cmp(&other.cards).reverse());
     }
 }
 impl Ord for Hand {
@@ -307,13 +206,13 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .into_iter()
         .map(|line| Hand::try_from(line).expect("Parsing failed"))
         .collect();
-    hands.sort(); //)
+    hands.sort(); //
     let ranks: Vec<_> = hands
         .iter()
         .enumerate()
         .map(|(i, hand)| (i + 1, hand))
         .collect();
-    dbg!(&ranks);
+    // dbg!(&ranks);
     let winnings: Vec<_> = ranks.iter().map(|(i, hand)| i * hand.bid).collect();
     res.part_2 = winnings.iter().sum();
 }
