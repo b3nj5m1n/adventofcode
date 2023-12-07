@@ -74,61 +74,6 @@ enum HandType {
     HighCard = 1,
 }
 
-fn get_hand_type_norm(cards: &Vec<char>) -> anyhow::Result<HandType> {
-    let mut map: HashMap<&char, usize> = HashMap::new();
-    for c in cards.iter() {
-        map.entry(c)
-            .and_modify(|counter| *counter += 1)
-            .or_insert(1);
-    }
-    let mut vals: Vec<usize> = map.values().map(|c| *c).collect();
-    vals.sort(); //)
-    vals.reverse();
-
-    Ok(match vals.as_slice() {
-        &[5] => HandType::FiveOfAKind,
-        &[4, 1] => HandType::FourOfAKind,
-        &[3, 2] => HandType::FullHouse,
-        &[3, 1, 1] => HandType::ThreeOfAKind,
-        &[2, 2, 1] => HandType::TwoPair,
-        &[2, 1, 1, 1] => HandType::OnePair,
-        &[1, 1, 1, 1, 1] => HandType::HighCard,
-        _ => return anyhow::bail!("Fuck"),
-    })
-}
-
-impl Hand {
-    fn get_type(&self) -> anyhow::Result<HandType> {
-        let joker_count = self.cards.iter().filter(|&c| *c == 'J').count();
-        let mut map: HashMap<&char, usize> = HashMap::new();
-        for c in self.cards.iter().filter(|&c| *c != 'J') {
-            map.entry(c)
-                .and_modify(|counter| *counter += 1)
-                .or_insert(1);
-        }
-        let mut vals: Vec<usize> = map.values().map(|c| *c).collect();
-        vals.sort(); //)
-        vals.reverse();
-        // All jokers
-        if vals.is_empty() {
-            vals.push(5);
-        } else {
-            vals[0] += joker_count;
-        }
-
-        Ok(match vals.as_slice() {
-            &[5] => HandType::FiveOfAKind,
-            &[4, 1] => HandType::FourOfAKind,
-            &[3, 2] => HandType::FullHouse,
-            &[3, 1, 1] => HandType::ThreeOfAKind,
-            &[2, 2, 1] => HandType::TwoPair,
-            &[2, 1, 1, 1] => HandType::OnePair,
-            &[1, 1, 1, 1, 1] => HandType::HighCard,
-            _ => return anyhow::bail!("Fuck"),
-        })
-    }
-}
-
 fn get_value_card(c: &char, part_2: bool) -> u32 {
     if !part_2 {
         match c {
@@ -167,35 +112,91 @@ fn get_value_card(c: &char, part_2: bool) -> u32 {
     }
 }
 
-impl PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match self.get_type().ok()?.partial_cmp(&other.get_type().ok()?) {
-            Some(s) => match s {
-                std::cmp::Ordering::Less => {
-                    return Some(std::cmp::Ordering::Less);
-                }
-                std::cmp::Ordering::Greater => {
-                    return Some(std::cmp::Ordering::Greater);
-                }
-                std::cmp::Ordering::Equal => {}
-            },
-            None => return None,
+impl Hand {
+    fn get_type(&self) -> anyhow::Result<(HandType, HandType)> {
+        let joker_count = self.cards.iter().filter(|&c| *c == 'J').count();
+        let mut map: HashMap<&char, usize> = HashMap::new();
+        for c in self.cards.iter().filter(|&c| *c != 'J') {
+            map.entry(c)
+                .and_modify(|counter| *counter += 1)
+                .or_insert(1);
+        }
+        let mut vals: Vec<usize> = map.values().map(|c| *c).collect();
+
+        // Part 1
+        if joker_count > 0 {
+            vals.push(joker_count);
+        }
+        vals.sort();
+        vals.reverse();
+        let p1 = match vals.as_slice() {
+            &[5] => HandType::FiveOfAKind,
+            &[4, 1] => HandType::FourOfAKind,
+            &[3, 2] => HandType::FullHouse,
+            &[3, 1, 1] => HandType::ThreeOfAKind,
+            &[2, 2, 1] => HandType::TwoPair,
+            &[2, 1, 1, 1] => HandType::OnePair,
+            &[1, 1, 1, 1, 1] => HandType::HighCard,
+            _ => return anyhow::bail!("Fuck"),
+        };
+        if joker_count > 0 {
+            vals.remove(vals.iter().position(|x| *x == joker_count).expect("fuck"));
+        }
+
+        let p2 = if joker_count > 0 {
+            // Part 2
+            vals.sort();
+            vals.reverse();
+            // All jokers
+            if vals.is_empty() {
+                vals.push(5);
+            } else {
+                vals[0] += joker_count;
+            }
+
+            match vals.as_slice() {
+                &[5] => HandType::FiveOfAKind,
+                &[4, 1] => HandType::FourOfAKind,
+                &[3, 2] => HandType::FullHouse,
+                &[3, 1, 1] => HandType::ThreeOfAKind,
+                &[2, 2, 1] => HandType::TwoPair,
+                &[2, 1, 1, 1] => HandType::OnePair,
+                &[1, 1, 1, 1, 1] => HandType::HighCard,
+                _ => return anyhow::bail!("Fuck"),
+            }
+        } else {
+            p1
+        };
+        Ok((p1, p2))
+    }
+    fn cmp(&self, other: &Self, part_2: bool) -> std::cmp::Ordering {
+        let type_self = match part_2 {
+            true => self.get_type().expect("").1,
+            false => self.get_type().expect("").0,
+        };
+        let type_other = match part_2 {
+            true => other.get_type().expect("").1,
+            false => other.get_type().expect("").0,
+        };
+        match type_self.cmp(&type_other) {
+            std::cmp::Ordering::Less => {
+                return std::cmp::Ordering::Less;
+            }
+            std::cmp::Ordering::Greater => {
+                return std::cmp::Ordering::Greater;
+            }
+            std::cmp::Ordering::Equal => {}
         }
         // It's eq
         for (c1, c2) in self.cards.iter().zip(other.cards.iter()) {
             if c1 == c2 {
                 continue;
             }
-            let c1 = get_value_card(c1, true);
-            let c2 = get_value_card(c2, true);
-            return Some(c1.cmp(&c2));
+            let c1 = get_value_card(c1, part_2);
+            let c2 = get_value_card(c2, part_2);
+            return c1.cmp(&c2);
         }
-        None
-    }
-}
-impl Ord for Hand {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.partial_cmp(&other).expect("Should be unreachable")
+        unreachable!()
     }
 }
 
@@ -206,13 +207,21 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .into_iter()
         .map(|line| Hand::try_from(line).expect("Parsing failed"))
         .collect();
-    hands.sort(); //
+    // Part 1
+    hands.sort_by(|a, b| a.cmp(b, false));
     let ranks: Vec<_> = hands
         .iter()
         .enumerate()
         .map(|(i, hand)| (i + 1, hand))
         .collect();
-    // dbg!(&ranks);
+    let winnings: Vec<_> = ranks.iter().map(|(i, hand)| i * hand.bid).collect();
+    res.part_1 = winnings.iter().sum();
+    hands.sort_by(|a, b| a.cmp(b, true));
+    let ranks: Vec<_> = hands
+        .iter()
+        .enumerate()
+        .map(|(i, hand)| (i + 1, hand))
+        .collect();
     let winnings: Vec<_> = ranks.iter().map(|(i, hand)| i * hand.bid).collect();
     res.part_2 = winnings.iter().sum();
 }
