@@ -45,23 +45,28 @@ fn dx(values: &Vec<i64>) -> Vec<i64> {
         })
         .collect()
 }
+fn dx2(values: &Vec<i64>) -> Vec<i64> {
+    values
+        .windows(2)
+        .map(|w| match w {
+            &[a, b] => a-b,
+            _ => unreachable!(),
+        })
+        .collect()
+}
 
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
     let values = inp
+        .clone()
         .into_iter()
         .map(|line| {
             line.split_whitespace()
-                .map(|n| {
-                    dbg!(n);
-                    n.parse::<i64>().expect("Couldn't parse number")
-                })
+                .map(|n| n.parse::<i64>().expect("Couldn't parse number"))
                 .collect::<Vec<_>>()
         })
         .collect::<Vec<_>>();
-    /* for line in inp {
-        println!("{}", line)
-    } */
+
     for hist in values {
         let mut dxs = Vec::new();
         dxs.push(hist);
@@ -82,17 +87,44 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         for i in (0..dxs.len() - 1).rev() {
             let last_element = dxs[i].last().expect("fuck").clone();
             let slope = dxs[i + 1].last().expect("fuck").clone();
-            /* dbg!(last_element);
-            dbg!(slope); */
             dxs[i].push(last_element + slope);
-            // dbg!(&dxs[i]);
         }
-        // dbg!(&dxs);
-
-        // dbg!(&t);
-
         let next = dxs[0].last().expect("fuck");
         res.part_1 += next;
-        // println!("Next: {next}");
+    }
+
+    let values = inp
+        .into_iter()
+        .map(|line| {
+            line.split_whitespace()
+                .map(|n| n.parse::<i64>().expect("Couldn't parse number"))
+                .rev()
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+    for hist in values {
+        let mut dxs = Vec::new();
+        dxs.push(hist);
+        while dxs
+            .last()
+            .expect("shit")
+            .iter()
+            .filter(|&&e| e != 0)
+            .count()
+            > 0
+        {
+            let hist_ = dx2(&dxs.last().expect("shit"));
+            dxs.push(hist_);
+        }
+
+        dxs.last_mut().expect("shit").push(0);
+        // for (i,dx) in dxs.iter().rev().skip(1).enumerate() {
+        for i in (0..dxs.len() - 1).rev() {
+            let last_element = dxs[i].last().expect("fuck").clone();
+            let slope = dxs[i + 1].last().expect("fuck").clone();
+            dxs[i].push(last_element - slope);
+        }
+        let next = dxs[0].last().expect("fuck");
+        res.part_2 += next;
     }
 }
