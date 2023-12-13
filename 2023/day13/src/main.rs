@@ -190,15 +190,21 @@ fn score(inp: &Vec<&str>) -> usize {
     }
 } */
 
-fn check_horizontal(inp: &Vec<impl ToString>, i_orig: usize) -> bool {
+fn check_horizontal(inp: &Vec<impl ToString>, i_orig: usize) -> u32 {
     let mut i = i_orig;
     let mut j = i + 1;
+    let mut smudges = 0;
     loop {
-        if inp[i].to_string() != inp[j].to_string() {
-            return false;
+        for (c1, c2) in inp[i].to_string().chars().zip(inp[j].to_string().chars()) {
+            if c1 != c2 {
+                smudges += 1;
+            }
         }
-        if i == 0 || j == inp.len()-1 {
-            return true;
+        /* if inp[i].to_string() != inp[j].to_string() {
+            // return false;
+        } */
+        if i == 0 || j == inp.len() - 1 {
+            break;
         }
         i -= 1;
         j += 1;
@@ -206,10 +212,10 @@ fn check_horizontal(inp: &Vec<impl ToString>, i_orig: usize) -> bool {
             break;
         } */
     }
-    true
+    smudges
 }
 
-fn score(inp: &Vec<&str>) -> usize {
+fn score(inp: &Vec<&str>, required_smuges: u32) -> usize {
     // dbg!(inp);
     if inp.len() == 0 {
         return 0;
@@ -223,40 +229,23 @@ fn score(inp: &Vec<&str>) -> usize {
         transposed.push(l.into_iter().collect::<String>());
     } */
     let transposed: Vec<String> = (0..inp[0].len())
-        .rev()
         .map(|col| {
             (0..inp.len())
+                .rev()
                 .map(|row| inp[row].chars().nth(col).expect("fuck").clone())
                 .collect()
         })
         .collect();
-    let transposed: Vec<String> = (0..transposed[0].len())
-        .rev()
-        .map(|col| {
-            (0..transposed.len())
-                .map(|row| transposed[row].chars().nth(col).expect("fuck").clone())
-                .collect()
-        })
-        .collect();
-    let transposed: Vec<String> = (0..transposed[0].len())
-        .rev()
-        .map(|col| {
-            (0..transposed.len())
-                .map(|row| transposed[row].chars().nth(col).expect("fuck").clone())
-                .collect()
-        })
-        .collect();
-    dbg!(&transposed);
-    for i in 0..(inp.len() - 1).max(transposed.len()-1) {
-        println!("Checking {i}");
-        if i < inp.len() - 1 && check_horizontal(inp, i) {
+    for i in 0..(inp.len() - 1).max(transposed.len() - 1) {
+        // println!("Checking {i}");
+        if i < inp.len() - 1 && check_horizontal(inp, i) == required_smuges {
             let score = (i + 1) * 100;
-            println!("Score: {}", score);
+            // println!("Score: {}", score);
             return score;
         }
-        if i < transposed.len() - 1 && check_horizontal(&transposed, i) {
+        if i < transposed.len() - 1 && check_horizontal(&transposed, i) == required_smuges {
             let score = i + 1;
-            println!("Score: {}", score);
+            // println!("Score: {}", score);
             return score;
         }
     }
@@ -268,6 +257,16 @@ fn score(inp: &Vec<&str>) -> usize {
 fn solve(inp: Vec<&str>, res: &mut Result) {
     res.part_1 = inp
         .split(|line| line.is_empty())
-        .map(|inp| score(&inp.to_vec()))
+        .map(|inp| score(&inp.to_vec(), 0))
+        .sum::<usize>();
+    res.part_2 = inp
+        .split(|line| line.is_empty())
+        .map(|inp| score(&inp.to_vec(), 1))
         .sum::<usize>();
 }
+
+// This was easily my worst performance this year. (so far)
+// Took me wayy to long to figure out a mirroring has to reach the beginning or end of the input.
+// Had to look at some of the comments in the AOC sub and still took me over 3 hours to complete
+// part 1.
+// Due to seeing the comments I arrived at the solution to part 2 fairy quickly.
