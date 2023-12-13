@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env;
 use std::io::Read;
 
@@ -197,7 +198,7 @@ fn check_horizontal(inp: &Vec<impl ToString>, i_orig: usize) -> bool {
         if inp[i].to_string() != inp[j].to_string() {
             return false;
         }
-        if i == 0 || j == inp.len()-1 {
+        if i == 0 || j == inp.len() - 1 {
             return true;
         }
         i -= 1;
@@ -209,65 +210,93 @@ fn check_horizontal(inp: &Vec<impl ToString>, i_orig: usize) -> bool {
     true
 }
 
-fn score(inp: &Vec<&str>) -> usize {
+fn score(inp: &Vec<&str>) -> Option<(usize, usize, u8)> {
     // dbg!(inp);
     if inp.len() == 0 {
-        return 0;
+        return Some((0, 0, 0));
     }
-    /* let mut transposed = Vec::new();
-    for col in 0..inp[0].len() - 1 {
-        let mut l = Vec::new();
-        for line in 0..inp.len() - 1 {
-            l.push(inp[line].chars().nth(col).expect("fuck"));
-        }
-        transposed.push(l.into_iter().collect::<String>());
-    } */
     let transposed: Vec<String> = (0..inp[0].len())
-        .rev()
         .map(|col| {
             (0..inp.len())
+                .rev()
                 .map(|row| inp[row].chars().nth(col).expect("fuck").clone())
                 .collect()
         })
         .collect();
-    let transposed: Vec<String> = (0..transposed[0].len())
-        .rev()
-        .map(|col| {
-            (0..transposed.len())
-                .map(|row| transposed[row].chars().nth(col).expect("fuck").clone())
-                .collect()
-        })
-        .collect();
-    let transposed: Vec<String> = (0..transposed[0].len())
-        .rev()
-        .map(|col| {
-            (0..transposed.len())
-                .map(|row| transposed[row].chars().nth(col).expect("fuck").clone())
-                .collect()
-        })
-        .collect();
-    dbg!(&transposed);
-    for i in 0..(inp.len() - 1).max(transposed.len()-1) {
-        println!("Checking {i}");
+    // assert!(transposed_orig == transposed);
+    // dbg!(&transposed);
+    for i in 0..(inp.len() - 1).max(transposed.len() - 1) {
+        // println!("Checking {i}");
         if i < inp.len() - 1 && check_horizontal(inp, i) {
             let score = (i + 1) * 100;
-            println!("Score: {}", score);
-            return score;
+            // println!("Score: {}", score);
+            return Some((score, i, 1));
         }
         if i < transposed.len() - 1 && check_horizontal(&transposed, i) {
             let score = i + 1;
-            println!("Score: {}", score);
-            return score;
+            // println!("Score: {}", score);
+            return Some((score, i, 2));
         }
     }
 
-    unreachable!()
+    None
+}
+
+fn score_p2(
+    inp: &Vec<&str>,
+    (original_mirror_line_idx, original_mirror_line_type): (usize, u8),
+) -> usize {
+    if inp.len() == 0 {
+        return 0;
+    }
+    let mut orig = None;
+    for y in 0..inp.len() {
+        for x in 0..inp[0].len() {
+            let current = match inp[y].chars().nth(x) {
+                Some('.') => '#',
+                Some('#') => '.',
+                _ => unreachable!(),
+            };
+            let mut new_grid = inp.clone();
+            let chars = new_grid[y].chars();
+            let chars_before: String = chars.clone().take(x).collect();
+            let chars_after: String = chars.skip(x + 1).collect();
+            new_grid[y] = (chars_before + &current.to_string() + &chars_after).leak();
+            /* println!("Old: {}", inp[y]);
+            println!("New: {}", new_grid[y]); */
+            if let Some((score, i, mirror_type)) = score(&new_grid) {
+                if i != original_mirror_line_idx && mirror_type != original_mirror_line_type {
+                    // println!("Found new mirror when switching {y}, {x}. Score: {score}. I: {i}");
+                    return score;
+                } else if mirror_type != original_mirror_line_type {
+                    return score;
+                } else {
+                    orig = Some(score);
+                }
+            }
+        }
+    }
+    dbg!(orig);
+    return orig.expect("Hopefully unreachable");
 }
 
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
+    let mut scores_p1 = HashMap::new();
     res.part_1 = inp
         .split(|line| line.is_empty())
-        .map(|inp| score(&inp.to_vec()))
+        .enumerate()
+        .map(|(idx, inp)| {
+            let (score, i, mirror_type) =
+                score(&inp.to_vec()).expect("Didn't find mirror for part 1");
+            scores_p1.insert(idx, (i, mirror_type));
+            score
+        })
+        .sum::<usize>();
+
+    res.part_2 = inp
+        .split(|line| line.is_empty())
+        .enumerate()
+        .map(|(idx, inp)| score_p2(&inp.to_vec(), *scores_p1.get(&idx).expect("fuck")))
         .sum::<usize>();
 }
