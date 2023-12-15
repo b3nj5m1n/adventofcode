@@ -1,3 +1,4 @@
+use std::collections::{HashMap, VecDeque};
 use std::env;
 use std::io::Read;
 
@@ -51,7 +52,51 @@ fn hash(s: &str) -> usize {
 
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
+    let mut map: Vec<Vec<_>> = vec![Vec::new(); 256]; // Vec::with_capacity(256);
     for step in inp[0].split(",") {
         res.part_1 += hash(step);
+        if step.contains("-") {
+            let id = step.split_once("-").unwrap().0;
+            let the_box = hash(id);
+            // println!("{step}: {the_box}");
+            if let Some((idx_in_box, _)) = map[the_box]
+                .iter()
+                .enumerate()
+                .find(|(idx, (box_id, _))| box_id == &id)
+            {
+                map[the_box].remove(idx_in_box);
+            }
+        } else if step.contains("=") {
+            let (id, value) = step.split_once("=").unwrap();
+            let the_box = hash(id);
+            // println!("{step}: {the_box}");
+            let idx_in_box = map[the_box]
+                .iter()
+                .enumerate()
+                .find(|(idx, (box_id, _))| box_id == &id);
+            match idx_in_box {
+                Some((idx, _)) => {
+                    // map[the_box].remove(idx);
+                    map[the_box][idx] = (id, value);
+                }
+                None => {
+                    map[the_box].push((id, value));
+                }
+            }
+        } else {
+            unreachable!()
+        }
+    }
+    for i in 0..256 {
+        if !map[i].is_empty() {
+            // dbg!(i, &map[i]);
+            for (j, lens) in map[i].iter().enumerate() {
+                let focal_length = lens.1.parse::<usize>().expect("Couldn't parse as number");
+                // println!("{}: (box {i}) * {j} * {focal_length}", lens.0);
+                res.part_2 += (1 + i) * (1 + j) * focal_length;
+            }
+        }
     }
 }
+
+// Rank 802 🦀
