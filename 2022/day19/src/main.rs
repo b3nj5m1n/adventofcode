@@ -3,6 +3,7 @@
 use std::io::Read;
 use std::{env, str::FromStr};
 
+use cached::proc_macro::cached;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 use yansi::Paint;
 
@@ -196,26 +197,29 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .collect::<Vec<_>>();
     dbg!(&bps);
     res.part_1 = bps
-        .clone()
-        .into_par_iter()
-        .map(|bp| {
-            let state = State::default();
-            let best_cycle = best_cycle(state, bp, 0, 24, &mut 0)
-                .expect("Didn't find valid cycle for blueprint");
-            println!(
-                "{} {} ({})",
-                Paint::fixed(
-                    (((0b101010 | bp.id << 5) * bp.id) % 255) as u8,
-                    "Finished calculating best score for blueprint"
-                ),
-                Paint::new(bp.id).bold(),
-                Paint::new(best_cycle.resources.geode).bg(yansi::Color::Fixed(
+    .clone()
+    .into_par_iter()
+    .map(|bp| {
+        let state = State::default();
+        let best_cycle = best_cycle(state, bp, 0, 24, &mut 0)
+            .expect("Didn't find valid cycle for blueprint");
+        println!(
+            "{} {} ({})",
+            Paint::fixed(
+                (((0b101010 | bp.id << 5) * bp.id) % 255) as u8,
+                "Finished calculating best score for blueprint"
+            ),
+            Paint::new(bp.id).bold(),
+            Paint::new(best_cycle.resources.geode)
+                .bg(yansi::Color::Fixed(
                     (((0b101010 | bp.id << 5) * bp.id) % 255) as u8
-                )).dimmed().bold()
-            );
-            quality_level(&best_cycle, bp)
-        })
-        .sum();
+                ))
+                .dimmed()
+                .bold()
+        );
+        quality_level(&best_cycle, bp)
+    })
+    .sum();
     res.part_2 = bps
         .into_par_iter()
         .take(3)
@@ -230,9 +234,12 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
                     "Finished calculating best score for blueprint"
                 ),
                 Paint::new(bp.id).bold(),
-                Paint::new(best_cycle.resources.geode).bg(yansi::Color::Fixed(
-                    (((0b101010 | bp.id << 5) * bp.id) % 255) as u8
-                )).dimmed().bold()
+                Paint::new(best_cycle.resources.geode)
+                    .bg(yansi::Color::Fixed(
+                        (((0b101010 | bp.id << 5) * bp.id) % 255) as u8
+                    ))
+                    .dimmed()
+                    .bold()
             );
             best_cycle.resources.geode
         })
@@ -250,7 +257,20 @@ fn best_cycle(
     let state = collect_resources(&current_state);
 
     // println!("{depth}");
-    if *current_best >= geode_robot_possible(state, current_depth, search_depth, bp) {
+    /* if *current_best
+        > geode_robot_possible_1(
+            state.resources.geode,
+            state.robots.count_geode_robots,
+            current_depth,
+            search_depth,
+        )
+    {
+        return None;
+    } */
+    /* if *current_best > geode_robot_possible_2(state, current_depth, search_depth, bp) {
+        return None;
+    } */
+    if *current_best > geode_robot_possible_3(state, current_depth, search_depth, bp) {
         return None;
     }
     if current_depth == search_depth - 1 {
@@ -267,26 +287,41 @@ fn best_cycle(
                 Paint::fixed(color, state.resources.geode.to_string()).bold(),
             );
             *current_best = state.resources.geode;
+            return Some(state);
         }
-        return Some(state);
+        return None;
     }
 
+    let to_beat = current_best.clone();
     match [
-        Some(ResourceType::Ore),
-        Some(ResourceType::Clay),
-        Some(ResourceType::Obsidian),
         Some(ResourceType::Geode),
+        Some(ResourceType::Obsidian),
+        Some(ResourceType::Clay),
+        Some(ResourceType::Ore),
         None,
     ]
     .into_iter()
     .filter(|resource_type| can_build(*resource_type, &state, bp))
-    .map(|resource_type| register_building_robot(&state, resource_type, bp))
-    .map(|state| update_robots(&state))
+    // .map(|resource_type| register_building_robot(&state, resource_type, bp))
+    // .map(|state| update_robots(&state))
     /* .filter(|state| {
-        let best_for_this = geode_robot_possible(&state, current_depth, search_depth, bp);
-        best_for_this > *current_best
+        let best_for_this = geode_robot_possible_1(state.resources.geode, state.robots.count_geode_robots, current_depth, search_depth);
+        best_for_this > to_beat
     }) */
-    .filter_map(|state| best_cycle(state, bp, current_depth + 1, search_depth, current_best))
+    .filter_map(|resource_type| {
+        /* if geode_robot_possible_1(current_state, current_depth, search_depth, bp) < *current_best {
+            return None;
+        }
+        if geode_robot_possible_2(current_state, current_depth, search_depth, bp) < *current_best {
+            return None;
+        } */
+        let state = register_building_robot(&state, resource_type, bp);
+        let state = update_robots(&state);
+        if to_beat > geode_robot_possible_3(state, current_depth, search_depth, bp) {
+            return None;
+        }
+        best_cycle(state, bp, current_depth + 1, search_depth, current_best)
+    })
     .reduce(|a, b| {
         if a.resources.geode > b.resources.geode {
             a
@@ -299,31 +334,54 @@ fn best_cycle(
     }
 }
 
+fn geode_robot_possible_1(
+    current_geode_count: u32,
+    current_geode_robots_count: u32,
+    current_depth: u32,
+    search_depth: u32,
+) -> u32 {
+    let most_possible_robots = ((search_depth - 2) * (search_depth - 1)) / 2
+        - ((current_depth.checked_sub(2).unwrap_or_default())
+            * (current_depth.checked_sub(1).unwrap_or_default()))
+            / 2;
+    let most_possible_geodes =
+        current_geode_count + current_geode_robots_count + most_possible_robots;
+    most_possible_geodes
+}
+
 // Given how much obsidian it takes to build a geode robot, check if that amount of osidian can be
 // obtained in the remaining time (upper bound)
 // Consider the case where we're building an obsidian robot every minute
-fn geode_robot_possible(
+fn geode_robot_possible_2(
     current_state: State,
     current_depth: u32,
     search_depth: u32,
     bp: Blueprint,
 ) -> u32 {
-    /* let geode_obsidian_cost = bp.cost_geode.obsidian;
-    let mut current_obsidian_count = current_state.resources.obsidian;
-    let mut current_obsidian_robots = current_state.robots.count_obsidian_robots;
-    let mut current_geode_count = current_state.resources.geode;
-    let mut current_geode_robots = current_state.robots.count_geode_robots;
-    for i in current_depth..=search_depth - 1 {
-        current_obsidian_robots += 1;
-        current_obsidian_count += current_obsidian_robots;
-        current_geode_count += current_geode_robots;
-        while current_obsidian_count >= geode_obsidian_cost {
-            current_geode_robots += 1;
-            current_obsidian_count -= geode_obsidian_cost;
-        }
-    } */
     let mut state = current_state.clone();
-    for _ in current_depth..=search_depth {
+    for _ in current_depth..=search_depth - 1 {
+        state.resources.ore += state.robots.count_ore_robots;
+        state.resources.clay += state.robots.count_clay_robots;
+        state.resources.obsidian += state.robots.count_obsidian_robots;
+        state.resources.geode += state.robots.count_geode_robots;
+        state.robots.count_ore_robots += 1;
+        state.robots.count_clay_robots += 1;
+        state.robots.count_obsidian_robots += 1;
+        state.robots.count_geode_robots += 1;
+    }
+    state.resources.geode += state.robots.count_geode_robots;
+
+    state.resources.geode
+}
+
+fn geode_robot_possible_3(
+    current_state: State,
+    current_depth: u32,
+    search_depth: u32,
+    bp: Blueprint,
+) -> u32 {
+    let mut state = current_state.clone();
+    for _ in current_depth..=search_depth - 1 {
         state = update_robots(&state);
         state.resources.ore += state.robots.count_ore_robots;
         state.resources.clay += state.robots.count_clay_robots;
