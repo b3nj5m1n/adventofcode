@@ -1,4 +1,6 @@
-use std::collections::{HashSet, HashMap};
+// Pretty easy problem, too lazy to improve this code
+
+use std::collections::{HashMap, HashSet};
 use std::env;
 use std::io::Read;
 use std::str::FromStr;
@@ -114,19 +116,9 @@ impl Position {
     }
 }
 
-// Function to solve both parts
-fn solve(inp: Vec<&str>, res: &mut Result) {
-    let grid: Vec<Vec<Tile>> = inp
-        .into_iter()
-        .map(|line| {
-            line.chars()
-                .map(|c| Tile::from_str(&c.to_string()).expect("Failed parsing tile"))
-                .collect()
-        })
-        .collect();
+fn get_energised(grid: Vec<Vec<Tile>>, starting_position: Position) -> usize {
     let grid_size = (grid[0].len(), grid.len());
-    // dbg!(&grid);
-    let mut positions = vec![Position::default()];
+    let mut positions = vec![starting_position];
     let mut energised = HashSet::new();
     let mut map = HashSet::new();
     let mut i = 0;
@@ -142,16 +134,19 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
                 .expect("Failed to read line");
         } */
         // println!("{}", energised.len());
+        // dbg!(&positions);
         let position = positions.pop().expect("Unreachable");
         // draw(position, grid.clone());
         if map.contains(&position) {
+            // println!("Reached loop, abandoning path");
             continue;
         }
-        map.insert(position);
+        if i != 1 {
+            map.insert(position);
+        }
         energised.insert(position.xy);
         let mut new_xy = match position.move_next(grid_size) {
             Some(xy) => xy,
-            // I think this is the exit condition
             None => {
                 // println!("Reached end of beam at {position:?}");
                 continue;
@@ -164,12 +159,15 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         /* println!(
             "Current position: {new_xy:?} ({:?})",
             grid[new_xy.1][new_xy.0]
-        ); */
+        );
+        dbg!(grid[new_xy.1][new_xy.0]); */
         match grid[new_xy.1][new_xy.0] {
-            Tile::Space => positions.push(Position {
-                xy: new_xy,
-                direction: position.direction,
-            }),
+            Tile::Space => {
+                positions.push(Position {
+                    xy: new_xy,
+                    direction: position.direction,
+                })
+            }
             Tile::MirrorTop => {
                 let new_direction = match position.direction {
                     (1, 0) => (0, -1),
@@ -239,7 +237,55 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     /* for line in inp {
         println!("{}", line)
     } */
-    res.part_1 = energised.len();
+    energised.len()
+}
+
+// Function to solve both parts
+fn solve(inp: Vec<&str>, res: &mut Result) {
+    let grid: Vec<Vec<Tile>> = inp
+        .into_iter()
+        .map(|line| {
+            line.chars()
+                .map(|c| Tile::from_str(&c.to_string()).expect("Failed parsing tile"))
+                .collect()
+        })
+        .collect();
+    res.part_1 = get_energised(grid.clone(), Position::default());
+    // dbg!(Position::default());
+    let mut max = 0;
+    for x in 0..grid[0].len() {
+        let pos = Position { xy: (x, 0), direction: (0, 1) };
+        let e = get_energised(grid.clone(), pos);
+        // println!("Checking {pos:?}, got {e}");
+        if e > max {
+            max = e;
+        }
+    }
+    for x in 0..grid[0].len() {
+        let pos = Position { xy: (x, grid.len()-1), direction: (0, -1) };
+        let e = get_energised(grid.clone(), pos);
+        // println!("Checking {pos:?}, got {e}");
+        if e > max {
+            max = e;
+        }
+    }
+    for y in 0..grid.len() {
+        let pos = Position { xy: (0, y), direction: (1, 0) };
+        let e = get_energised(grid.clone(), pos);
+        // println!("Checking {pos:?}, got {e}");
+        if e > max {
+            max = e;
+        }
+    }
+    for y in 0..grid.len() {
+        let pos = Position { xy: (grid[0].len()-1, y), direction: (-1, 0) };
+        let e = get_energised(grid.clone(), pos);
+        // println!("Checking {pos:?}, got {e}");
+        if e > max {
+            max = e;
+        }
+    }
+    res.part_2 = max;
 }
 
 fn draw(position: Position, grid: Vec<Vec<Tile>>) {
