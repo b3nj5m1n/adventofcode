@@ -19,8 +19,8 @@ fn main() {
 
     // Struct storing the resulting values
     let mut result: Result = Result {
-        part_1: String::from(""),
-        part_2: String::from(""),
+        part_1: 0,
+        part_2: 0,
     };
 
     // Solve
@@ -31,8 +31,8 @@ fn main() {
 
 // Struct for solution values
 struct Result {
-    part_1: String,
-    part_2: String,
+    part_1: usize,
+    part_2: usize,
 }
 
 // Function to solve both parts
