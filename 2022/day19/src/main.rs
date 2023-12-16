@@ -1,9 +1,10 @@
+// 4 hours 41 minute runtime for the example, 2 hours 13 minutes for the actual input
+
 use std::io::Read;
-use std::sync::{Mutex, OnceLock};
 use std::{env, str::FromStr};
 
-use cached::proc_macro::cached;
-use rayon::prelude::{IntoParallelIterator, ParallelIterator};
+use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
+use yansi::Paint;
 
 // Function to output the solutions to both parts
 fn output(result: &Result) {
@@ -189,75 +190,88 @@ fn quality_level(state: &State, bp: Blueprint) -> u32 {
 
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
-    /* for line in inp {
-        println!("{}", line)
-    } */
-    // TODO Parsing
-    // TODO For each blueprint
     let bps = inp
         .into_iter()
         .map(|l| Blueprint::from_str(l).expect("Parsing blueprint failed"))
         .collect::<Vec<_>>();
+    dbg!(&bps);
     res.part_1 = bps
+        .clone()
         .into_par_iter()
         .map(|bp| {
             let state = State::default();
-            let best_cycle = best_cycle(state, bp, 0, 24, &mut 0);
-            println!("Finished calculating best score for blueprint {}", bp.id);
+            let best_cycle = best_cycle(state, bp, 0, 24, &mut 0)
+                .expect("Didn't find valid cycle for blueprint");
+            println!(
+                "{} {} ({})",
+                Paint::fixed(
+                    (((0b101010 | bp.id << 5) * bp.id) % 255) as u8,
+                    "Finished calculating best score for blueprint"
+                ),
+                Paint::new(bp.id).bold(),
+                Paint::new(best_cycle.resources.geode).bg(yansi::Color::Fixed(
+                    (((0b101010 | bp.id << 5) * bp.id) % 255) as u8
+                )).dimmed().bold()
+            );
             quality_level(&best_cycle, bp)
         })
         .sum();
-
-    /* let bp = Blueprint::from_str(
-        r#"
-        Blueprint 1:
-          Each ore robot costs 4 ore.
-          Each clay robot costs 2 ore.
-          Each obsidian robot costs 3 ore and 14 clay.
-          Each geode robot costs 2 ore and 7 obsidian."#,
-    )
-    .expect("Parsing failed"); */
-    /* let bp = Blueprint::from_str(
-        r#"
-        Blueprint 2:
-          Each ore robot costs 2 ore.
-          Each clay robot costs 3 ore.
-          Each obsidian robot costs 3 ore and 8 clay.
-          Each geode robot costs 3 ore and 12 obsidian."#,
-    )
-    .expect("Parsing failed"); */
+    res.part_2 = bps
+        .into_par_iter()
+        .take(3)
+        .map(|bp| {
+            let state = State::default();
+            let best_cycle = best_cycle(state, bp, 0, 32, &mut 0)
+                .expect("Didn't find valid cycle for blueprint");
+            println!(
+                "{} {} ({})",
+                Paint::fixed(
+                    (((0b101010 | bp.id << 5) * bp.id) % 255) as u8,
+                    "Finished calculating best score for blueprint"
+                ),
+                Paint::new(bp.id).bold(),
+                Paint::new(best_cycle.resources.geode).bg(yansi::Color::Fixed(
+                    (((0b101010 | bp.id << 5) * bp.id) % 255) as u8
+                )).dimmed().bold()
+            );
+            best_cycle.resources.geode
+        })
+        .product();
 }
 
-/* fn best() -> &'static Mutex<u32> {
-    static BEST: OnceLock<Mutex<u32>> = OnceLock::new();
-    BEST.get_or_init(|| Mutex::new(0))
-} */
-
-// #[cached]
 fn best_cycle(
     current_state: State,
     bp: Blueprint,
     current_depth: u32,
     search_depth: u32,
     current_best: &mut u32,
-) -> State {
+) -> Option<State> {
     // Begin cycle by collecting resources from current robots
     let state = collect_resources(&current_state);
 
     // println!("{depth}");
+    if *current_best >= geode_robot_possible(state, current_depth, search_depth, bp) {
+        return None;
+    }
     if current_depth == search_depth - 1 {
         // let mut best = best().lock().expect("Failed to obtain lock for best");
         if *current_best < state.resources.geode {
-            // println!("Updated best from {best} to {}", state.resources.geode);
+            let color = (((0b101010 | bp.id << 5) * bp.id) % 255) as u8;
+            /* let r = ( color | 16 ) % 255;
+            let g = ( color | 32 ) % 255;
+            let b = ( color | 64 ) % 255; */
+            println!(
+                "Updated best from {} to {}",
+                // Paint::rgb(r, g, b, current_best.to_string()),
+                Paint::fixed(color, current_best.to_string()).bold(),
+                Paint::fixed(color, state.resources.geode.to_string()).bold(),
+            );
             *current_best = state.resources.geode;
         }
-        return state;
-    }
-    if *current_best >= geode_robot_possible(&state, current_depth, search_depth, bp) {
-        return state;
+        return Some(state);
     }
 
-    [
+    match [
         Some(ResourceType::Ore),
         Some(ResourceType::Clay),
         Some(ResourceType::Obsidian),
@@ -272,27 +286,29 @@ fn best_cycle(
         let best_for_this = geode_robot_possible(&state, current_depth, search_depth, bp);
         best_for_this > *current_best
     }) */
-    .map(|state| best_cycle(state, bp, current_depth + 1, search_depth, current_best))
+    .filter_map(|state| best_cycle(state, bp, current_depth + 1, search_depth, current_best))
     .reduce(|a, b| {
         if a.resources.geode > b.resources.geode {
             a
         } else {
             b
         }
-    })
-    .unwrap()
+    }) {
+        Some(s) => Some(s),
+        None => Some(state),
+    }
 }
 
 // Given how much obsidian it takes to build a geode robot, check if that amount of osidian can be
 // obtained in the remaining time (upper bound)
 // Consider the case where we're building an obsidian robot every minute
 fn geode_robot_possible(
-    current_state: &State,
+    current_state: State,
     current_depth: u32,
     search_depth: u32,
     bp: Blueprint,
 ) -> u32 {
-    let geode_obsidian_cost = bp.cost_geode.obsidian;
+    /* let geode_obsidian_cost = bp.cost_geode.obsidian;
     let mut current_obsidian_count = current_state.resources.obsidian;
     let mut current_obsidian_robots = current_state.robots.count_obsidian_robots;
     let mut current_geode_count = current_state.resources.geode;
@@ -305,16 +321,29 @@ fn geode_robot_possible(
             current_geode_robots += 1;
             current_obsidian_count -= geode_obsidian_cost;
         }
-    }
-    current_obsidian_count += current_obsidian_robots;
-    current_geode_count += current_geode_robots;
-
-    /* if current_obsidian_count >= geode_obsidian_cost {
-        println!("Discarding option");
     } */
-    // println!("Best case: {} geodes.", current_obsidian_count);
-    current_geode_count
-    // current_obsidian_count >= geode_obsidian_cost
+    let mut state = current_state.clone();
+    for _ in current_depth..=search_depth {
+        state = update_robots(&state);
+        state.resources.ore += state.robots.count_ore_robots;
+        state.resources.clay += state.robots.count_clay_robots;
+        state.resources.obsidian += state.robots.count_obsidian_robots;
+        state.resources.geode += state.robots.count_geode_robots;
+
+        for r_type in [
+            Some(ResourceType::Ore),
+            Some(ResourceType::Clay),
+            Some(ResourceType::Obsidian),
+            Some(ResourceType::Geode),
+        ] {
+            let resources = state.resources;
+            state = register_building_robot(&state, r_type, bp);
+            state.resources = resources;
+        }
+    }
+    state.resources.geode += state.robots.count_geode_robots;
+
+    state.resources.geode
 }
 
 fn update_robots(current_state: &State) -> State {
@@ -339,7 +368,8 @@ fn register_building_robot(
 ) -> State {
     let mut new_state = current_state.clone();
     if !can_build(want_to_build, current_state, bp) {
-        panic!("Called build_robot with a state that cannot produce requested robot");
+        return *current_state;
+        // panic!("Called build_robot with a state that cannot produce requested robot");
     }
     let want_to_build = if let Some(want_to_build) = want_to_build {
         want_to_build
