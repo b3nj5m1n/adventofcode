@@ -1,3 +1,6 @@
+// I got very close on my own, eventually gave up because I couldn't figure out why the shoelace
+// formula wasn't working but stumbled upon Picks Theorem on reddit a little while later.
+
 use std::collections::{HashSet, VecDeque};
 use std::env;
 use std::io::Read;
@@ -35,8 +38,8 @@ fn main() {
 
 // Struct for solution values
 struct Result {
-    part_1: usize,
-    part_2: usize,
+    part_1: i64,
+    part_2: i64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -51,10 +54,10 @@ impl FromStr for Direction {
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s {
-            "U" => Ok(Self::Up),
-            "D" => Ok(Self::Down),
-            "L" => Ok(Self::Left),
-            "R" => Ok(Self::Right),
+            "U" | "3" => Ok(Self::Up),
+            "D" | "1" => Ok(Self::Down),
+            "L" | "2" => Ok(Self::Left),
+            "R" | "0" => Ok(Self::Right),
             _ => Err(anyhow::anyhow!("Couldn't parse direction")),
         }
     }
@@ -70,11 +73,11 @@ impl Direction {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct DigInstruction {
     direction: Direction,
     count: u32,
-    color: RGB8,
+    color: String,
 }
 impl FromStr for DigInstruction {
     type Err = anyhow::Error;
@@ -91,34 +94,13 @@ impl FromStr for DigInstruction {
             };
         let direction = Direction::from_str(s_direction)?;
         let count = s_count.parse::<u32>()?;
-        let r_hex = &s_color[2..4];
-        let g_hex = &s_color[4..6];
-        let b_hex = &s_color[6..8];
-        let r = u8::from_str_radix(r_hex, 16)?;
-        let g = u8::from_str_radix(g_hex, 16)?;
-        let b = u8::from_str_radix(b_hex, 16)?;
         Ok(Self {
             direction,
             count,
-            color: RGB8 { r, g, b },
+            color: s_color[2..8].to_string(),
         })
     }
 }
-/* impl DigInstruction {
-    fn get_direction(&self) -> Vec<Point> {
-        let dir = self.direction.get_direction();
-        let mut result = Vec::new();
-        for i in 1..=self.count as i64 {
-            result.push(Point {
-                x: dir.x * i,
-                y: dir.y * i,
-            });
-        }
-        /* println!("Directions for {self:?}");
-        dbg!(&result); */
-        result
-    }
-} */
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
 struct Point {
@@ -126,54 +108,7 @@ struct Point {
     y: i64,
 }
 
-// Function to solve both parts
-fn solve(inp: Vec<&str>, res: &mut Result) {
-    let instructions: Vec<_> = inp
-        .into_iter()
-        .map(|l| DigInstruction::from_str(l).expect("Failed parsing dig instruction"))
-        .collect();
-    // dbg!(&instructions);
-    let mut bound_top_left = Point::default();
-    let mut bound_bottom_right = Point::default();
-    let mut current = Point::default();
-    let mut grid = HashSet::new();
-    grid.insert(current);
-    for instruction in instructions {
-        let dir = instruction.direction.get_direction();
-        for offset in 1..=instruction.count {
-            current = Point {
-                x: current.x + dir.x,
-                y: current.y + dir.y,
-            };
-            // dbg!(current);
-            grid.insert(current);
-            bound_top_left = Point {
-                x: bound_top_left.x.min(current.x),
-                y: bound_top_left.y.min(current.y),
-            };
-            bound_bottom_right = Point {
-                x: bound_bottom_right.x.max(current.x),
-                y: bound_bottom_right.y.max(current.y),
-            };
-        }
-    }
-    /* for y in bound_top_left.y..=bound_bottom_right.y {
-        let mut inside = false;
-        let mut last = false;
-        for x in bound_top_left.x..=bound_bottom_right.x {
-            if grid.contains(&Point { x, y }) {
-                if !last {
-                    inside = !inside;
-                }
-                last = true;
-            } else {
-                last = false;
-            }
-            if inside {
-                grid.insert(Point { x, y });
-            }
-        }
-    } */
+fn solve_grid(grid: HashSet<Point>, bound_top_left: Point, bound_bottom_right: Point) -> usize {
     let mut open_edges = HashSet::new();
     for y in bound_top_left.y..=bound_bottom_right.y {
         let top = Point {
@@ -191,6 +126,7 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
             open_edges.insert(bottom);
         }
     }
+    // println!("Finished traversing horizontal edges");
     for x in bound_top_left.x..=bound_bottom_right.x {
         let top = Point {
             x,
@@ -207,12 +143,28 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
             open_edges.insert(bottom);
         }
     }
+    // println!("Finished traversing vertical edges");
     let mut to_search_open_edges = VecDeque::new();
     for open_edge in open_edges.iter() {
         to_search_open_edges.push_front(open_edge.clone());
     }
+    open_edges.drain();
+    // println!("Starting to flood fill open edges");
+    let mut i = 0;
     while !to_search_open_edges.is_empty() {
-        let current = to_search_open_edges.pop_front().expect("Unreachable");
+        i += 1;
+        if i % 100000 == 0 {
+            println!("{i} ({})", to_search_open_edges.len());
+        }
+        let current = to_search_open_edges.pop_back().expect("Unreachable");
+        if open_edges.contains(&current) {
+            continue;
+        }
+        if !grid.contains(&current) {
+            open_edges.insert(current);
+        } else {
+            continue;
+        }
         for dir in [(1, 0), (-1, 0), (0, 1), (0, -1)] {
             let neighbor = Point {
                 x: current.x + dir.0,
@@ -229,17 +181,143 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
             }
             if !grid.contains(&neighbor) {
                 if !open_edges.contains(&neighbor) {
-                    open_edges.insert(neighbor);
+                    // open_edges.insert(neighbor);
                     to_search_open_edges.push_front(neighbor);
                 }
             }
         }
     }
-    // dbg!(&open_edges);
+    // println!("Finished flood fill of open edges");
+    ((1 + bound_bottom_right.x.abs_diff(bound_top_left.x))
+        * (1 + bound_bottom_right.y.abs_diff(bound_top_left.y))) as usize
+        - open_edges.len()
+}
+
+// https://stackoverflow.com/a/6989383
+fn point_less_clockwise(
+    a: Point,
+    b: Point,
+    bound_top_left: Point,
+    bound_bottom_right: Point,
+) -> bool {
+    let center = Point {
+        x: (bound_top_left.x + bound_bottom_right.x) / 2,
+        y: (bound_top_left.y + bound_bottom_right.y) / 2,
+    };
+    let center = Point::default();
+    if a.x - center.x >= 0 && b.x - center.x < 0 {
+        return true;
+    }
+    if a.x - center.x < 0 && b.x - center.x >= 0 {
+        return false;
+    }
+    if a.x - center.x == 0 && b.x - center.x == 0 {
+        if a.y - center.y >= 0 || b.y - center.y >= 0 {
+            return a.y > b.y;
+        }
+        return b.y > a.y;
+    }
+
+    let det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
+    if det < 0 {
+        return true;
+    }
+    if det > 0 {
+        return false;
+    }
+
+    let d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
+    let d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
+    return d1 > d2;
+}
+
+fn get_area(instructions: &Vec<DigInstruction>) -> i64 {
+    let mut bound_top_left = Point::default();
+    let mut bound_bottom_right = Point::default();
+    let mut current = Point::default();
+    let mut grid = HashSet::new();
+    grid.insert(current);
+    let mut perimiter = 0;
+    let mut edge_points = Vec::new();
+    for instruction in instructions {
+        let dir = instruction.direction.get_direction();
+        edge_points.push(current);
+            current = Point {
+                x: current.x + dir.x * instruction.count as i64,
+                y: current.y + dir.y * instruction.count as i64,
+            };
+            perimiter += instruction.count as i64;
+        /* for offset in 1..=instruction.count {
+            perimiter += 1;
+            current = Point {
+                x: current.x + dir.x,
+                y: current.y + dir.y,
+            };
+            // dbg!(current);
+            grid.insert(current);
+            bound_top_left = Point {
+                x: bound_top_left.x.min(current.x),
+                y: bound_top_left.y.min(current.y),
+            };
+            bound_bottom_right = Point {
+                x: bound_bottom_right.x.max(current.x),
+                y: bound_bottom_right.y.max(current.y),
+            };
+        } */
+    }
+    /* edge_points.sort_by(|a, b| {
+        let less = point_less_clockwise(*a, *b, bound_top_left, bound_bottom_right);
+        if less {
+            std::cmp::Ordering::Less
+        } else {
+            std::cmp::Ordering::Greater
+        }
+    }); */
+    // Shoelace Formula
+    let mut area = 0;
+    let mut p0 = edge_points[edge_points.len() - 1];
+    for p1 in edge_points.iter() {
+        area += (p0.y * p1.x) - (p0.x * p1.y);
+        p0 = *p1;
+    }
+    area = area / 2;
+    area = area.abs();
+    // Picks's theorem
+    area = area + (perimiter / 2) + 1;
+    // dbg!(&edge_points);
+    // dbg!(area);
+    // println!("Finished creating grid");
+    // (grid, bound_top_left, bound_bottom_right, edge_points)
+    area
+}
+
+// Function to solve both parts
+fn solve(inp: Vec<&str>, res: &mut Result) {
+    let instructions: Vec<_> = inp
+        .into_iter()
+        .map(|l| DigInstruction::from_str(l).expect("Failed parsing dig instruction"))
+        .collect();
+    // let (grid, bound_top_left, bound_bottom_right, edge_points) = get_area(&instructions);
+    /* for edge_point in edge_points.iter() {
+        println!(
+            "({}, {})",
+            yansi::Paint::new(edge_point.x).fg(yansi::Color::Fixed(
+                (edge_point.x + edge_point.y << 5 | 0b100101 % 255) as u8,
+            )),
+            yansi::Paint::new(edge_point.y).fg(yansi::Color::Fixed(
+                (edge_point.x + edge_point.y << 5 | 0b100101 % 255) as u8,
+            )),
+        );
+    } */
     /* for y in bound_top_left.y..=bound_bottom_right.y {
         for x in bound_top_left.x..=bound_bottom_right.x {
-            if open_edges.contains(&Point { x, y }) {
-                print!("O");
+            if edge_points.contains(&Point { x, y }) {
+                print!(
+                    "{}",
+                    yansi::Paint::new(y).fg(yansi::Color::Fixed(
+                        (x + y << 5 | 0b100101 % 255) as u8,
+                    )),
+                );
                 continue;
             }
             if grid.contains(&Point { x, y }) {
@@ -251,5 +329,29 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         }
         print!("\n");
     } */
-    res.part_1 = ( (1 + bound_bottom_right.x.abs_diff(bound_top_left.x) ) * (1+ bound_bottom_right.y.abs_diff(bound_top_left.y) ) ) as usize - open_edges.len();
+    res.part_1 = get_area(&instructions);
+
+    /* let mut a = 0;
+    for y in bound_top_left.y..=bound_bottom_right.y {
+        for x in bound_top_left.x..=bound_bottom_right.x {
+
+        }
+    }
+    dbg!(a); */
+
+    let instructions: Vec<_> = instructions
+        .into_iter()
+        .map(|i| {
+            let new_dir = Direction::from_str(&i.color.as_str()[5..6]).expect("Unreachable");
+            let new_count = u32::from_str_radix(&i.color.as_str()[0..5], 16).expect("Unreachable");
+            DigInstruction {
+                direction: new_dir,
+                count: new_count,
+                color: "".to_string(),
+            }
+        })
+        .collect();
+    /* let (grid, bound_top_left, bound_bottom_right) = create_grid(&instructions);
+    res.part_2 = solve_grid(grid, bound_top_left, bound_bottom_right); */
+    res.part_2 = get_area(&instructions);
 }

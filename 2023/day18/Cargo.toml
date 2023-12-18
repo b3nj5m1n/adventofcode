@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.75"
 rgb = "0.8.37"
+tqdm = "0.6.0"
+yansi = "0.5.1"
