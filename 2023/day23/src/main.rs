@@ -70,8 +70,7 @@ fn get_node_index_by_point(graph: &DiGraph<Point, i32>, point: &Point) -> Option
     None
 }
 
-// Function to solve both parts
-fn solve(inp: Vec<&str>, res: &mut Result) {
+fn construct_graph(inp: Vec<&str>, part_2: bool) -> (DiGraph<Point, i32>, NodeIndex, NodeIndex) {
     let mut graph = DiGraph::<Point, i32>::new();
     let max_y = inp.len();
     let max_x = inp[0].len();
@@ -138,26 +137,28 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
                 if let Tile::Forest = neighbour_tile {
                     continue;
                 }
-                if let Tile::Slope(s) = current_tile {
-                    match s {
-                        Slope::Up => {
-                            if neighbour_d != (0, -1) {
-                                continue;
+                if !part_2 {
+                    if let Tile::Slope(s) = current_tile {
+                        match s {
+                            Slope::Up => {
+                                if neighbour_d != (0, -1) {
+                                    continue;
+                                }
                             }
-                        }
-                        Slope::Right => {
-                            if neighbour_d != (1, 0) {
-                                continue;
+                            Slope::Right => {
+                                if neighbour_d != (1, 0) {
+                                    continue;
+                                }
                             }
-                        }
-                        Slope::Down => {
-                            if neighbour_d != (0, 1) {
-                                continue;
+                            Slope::Down => {
+                                if neighbour_d != (0, 1) {
+                                    continue;
+                                }
                             }
-                        }
-                        Slope::Left => {
-                            if neighbour_d != (-1, 0) {
-                                continue;
+                            Slope::Left => {
+                                if neighbour_d != (-1, 0) {
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -175,7 +176,26 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
     let from = get_node_index_by_point(&graph, &from).expect("Failed to find node index by point");
     let to = get_node_index_by_point(&graph, &to).expect("Failed to find node index by point");
 
+    (graph, from, to)
+}
+
+// Function to solve both parts
+fn solve(inp: Vec<&str>, res: &mut Result) {
+    let (graph, from, to) = construct_graph(inp.clone(), false);
+
     let ways = algo::all_simple_paths(&graph, from, to, 0, None).collect::<Vec<Vec<_>>>();
-    let ways_lens = ways.into_iter().map(|path| path.len() - 1).collect::<Vec<_>>();
+    let ways_lens = ways
+        .into_iter()
+        .map(|path| path.len() - 1)
+        .collect::<Vec<_>>();
     res.part_1 = ways_lens.into_iter().max().expect("Unreachable");
+
+    let (graph, from, to) = construct_graph(inp, true);
+
+    let ways = algo::all_simple_paths(&graph, from, to, 0, None).collect::<Vec<Vec<_>>>();
+    let ways_lens = ways
+        .into_iter()
+        .map(|path| path.len() - 1)
+        .collect::<Vec<_>>();
+    res.part_2 = ways_lens.into_iter().max().expect("Unreachable");
 }
