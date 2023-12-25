@@ -2,7 +2,7 @@ use std::io::Read;
 use std::{collections::HashSet, env};
 
 use itertools::Itertools;
-use nalgebra::{Matrix2, Matrix3, Vector2, Vector3, LU};
+use nalgebra::{DMatrix, DVector, Matrix2, Matrix3, Vector2, Vector3, VectorN, LU, U1, U3};
 
 // Function to output the solutions to both parts
 fn output(result: &Result) {
