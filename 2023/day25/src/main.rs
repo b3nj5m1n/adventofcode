@@ -55,6 +55,8 @@ f;                  :f1.                                       ,;:  G@:         
  ,fi.          ,itLf                                              ti,,                ,, ::
    ;iii;;;;i1fff1, t                                              i:i:                ..  ,
 
+For future reference, render the graph with `dot -Tpng test.dot -o out.png -Kneato`
+and skip the whole inkscape thing.
 */
 
 use std::collections::HashMap;
