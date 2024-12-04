@@ -35,7 +35,7 @@ struct Result {
     part_2: usize,
 }
 
-fn coords_to_check(
+fn coords_to_check_1(
     (x, y): (usize, usize),
     height: usize,
     width: usize,
@@ -70,6 +70,57 @@ fn coords_to_check(
     result
 }
 
+fn coords_to_check_2(
+    (x, y): (usize, usize),
+    height: usize,
+    width: usize,
+) -> Vec<(
+    (usize, usize), // Top Left
+    (usize, usize), // Top Right
+    (usize, usize), // Middle
+    (usize, usize), // Bottom Left
+    (usize, usize), // Bottom Right
+)> {
+    let mut result = Vec::new();
+    if !(x >= 1 && x < width - 1 && y >= 1 && y < height - 1) {
+        return result;
+    }
+    // Forwards Forwards
+    result.push((
+        (x - 1, y - 1),
+        (x + 1, y - 1),
+        (x, y),
+        (x - 1, y + 1),
+        (x + 1, y + 1),
+    ));
+    // Backwards Backwards
+    result.push((
+        (x + 1, y + 1),
+        (x - 1, y + 1),
+        (x, y),
+        (x + 1, y - 1),
+        (x - 1, y - 1),
+    ));
+    // Forwards Backwards
+    result.push((
+        (x - 1, y - 1),
+        (x - 1, y + 1),
+        (x, y),
+        (x + 1, y - 1),
+        (x + 1, y + 1),
+    ));
+    // Backwards Forwards
+    result.push((
+        (x + 1, y + 1),
+        (x + 1, y - 1),
+        (x, y),
+        (x - 1, y + 1),
+        (x - 1, y - 1),
+    ));
+
+    result
+}
+
 // Function to solve both parts
 fn solve(inp: Vec<&str>, res: &mut Result) {
     let grid = inp
@@ -78,31 +129,51 @@ fn solve(inp: Vec<&str>, res: &mut Result) {
         .collect::<Vec<Vec<char>>>();
     let width = grid[0].len();
     let height = grid.len();
-    let mut sparse_grid = vec![vec!["."; width]; height];
+    /* let mut sparse_grid_1 = vec![vec!["."; width]; height];
+    let mut sparse_grid_2 = vec![vec!["."; width]; height]; */
     for x in 0..width {
         for y in 0..height {
-            for (a, b, c, d) in coords_to_check((x, y), height, width) {
+            for (a, b, c, d) in coords_to_check_1((x, y), height, width) {
                 if grid[a.1][a.0] == 'X'
                     && grid[b.1][b.0] == 'M'
                     && grid[c.1][c.0] == 'A'
                     && grid[d.1][d.0] == 'S'
                 {
                     res.part_1 += 1;
-                    sparse_grid[a.1][a.0] = "X";
-                    sparse_grid[b.1][b.0] = "M";
-                    sparse_grid[c.1][c.0] = "A";
-                    sparse_grid[d.1][d.0] = "S";
+                    /* sparse_grid_1[a.1][a.0] = "X";
+                    sparse_grid_1[b.1][b.0] = "M";
+                    sparse_grid_1[c.1][c.0] = "A";
+                    sparse_grid_1[d.1][d.0] = "S"; */
                 }
             }
         }
     }
-    dbg!(grid, width, height);
-    println!(
+    for x in 0..width {
+        for y in 0..height {
+            for (a, b, c, d, e) in coords_to_check_2((x, y), height, width) {
+                if grid[a.1][a.0] == 'M'
+                    && grid[b.1][b.0] == 'S'
+                    && grid[c.1][c.0] == 'A'
+                    && grid[d.1][d.0] == 'M'
+                    && grid[e.1][e.0] == 'S'
+                {
+                    res.part_2 += 1;
+                    /* sparse_grid_2[a.1][a.0] = "M";
+                    sparse_grid_2[b.1][b.0] = "S";
+                    sparse_grid_2[c.1][c.0] = "A";
+                    sparse_grid_2[d.1][d.0] = "M";
+                    sparse_grid_2[e.1][e.0] = "S"; */
+                }
+            }
+        }
+    }
+    // dbg!(grid, width, height);
+    /* println!(
         "{}",
-        sparse_grid
+        sparse_grid_2
             .into_iter()
             .map(|l| l.concat())
             .collect::<Vec<String>>()
             .join("\n")
-    )
+    ) */
 }
